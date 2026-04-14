@@ -62,3 +62,6 @@ backup_*.sql
 # Locust reports
 reports/
 locust_report*.html
+
+# Pyenv
+.python-version
