@@ -116,4 +116,6 @@ Runner отправляет запросы в существующий endpoint 
 Пример запуска:
 
 ```bash
-python -m src.experiments.runner --dataset src/experiments/datasets/advanced_mixed.json --configs src/experiments/configs --base-url http://localhost:8000 --model qwen3:4b
+python -m src.experiments.runner --dataset src/experiments/datasets/basic.json --configs src/experiments/configs --base-url http://localhost:8000 --model qwen3:4b
+python -m src.experiments.runner --base-url http://localhost:8000 --model qwen3:4b
+```
