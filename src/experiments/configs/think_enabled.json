@@ -1,0 +1,11 @@
+{
+  "name": "think_enabled",
+  "runtime_params": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": true
+  }
+}

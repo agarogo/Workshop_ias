@@ -1,0 +1,164 @@
+[
+  {
+    "id": "fib_recursive_python",
+    "input": "Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["def fibonacci_recursive", "return"],
+      "regex": [
+        "fibonacci_recursive\\(n\\s*-\\s*1\\)",
+        "fibonacci_recursive\\(n\\s*-\\s*2\\)"
+      ],
+      "max_length": 700
+    },
+    "tags": ["code", "python", "recursion", "fibonacci"]
+  },
+  {
+    "id": "fib_dp_python",
+    "input": "Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["def fibonacci_dp", "return"],
+      "regex": [
+        "dp\\s*=\\s*\\[",
+        "for\\s+.*in\\s+range"
+      ],
+      "max_length": 900
+    },
+    "tags": ["code", "python", "dp", "fibonacci"]
+  },
+  {
+    "id": "gcd_euclid_python",
+    "input": "Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["def gcd", "return"],
+      "regex": [
+        "while\\s+b\\s*!=\\s*0|while\\s+b\\s*:",
+        "a\\s*,\\s*b\\s*=\\s*b\\s*,\\s*a\\s*%\\s*b|a\\s*=\\s*b.*%.*b"
+      ],
+      "max_length": 500
+    },
+    "tags": ["code", "python", "math", "euclid"]
+  },
+  {
+    "id": "bfs_python",
+    "input": "Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["def bfs", "visited", "return"],
+      "regex": [
+        "deque",
+        "while\\s+",
+        "popleft\\("
+      ],
+      "max_length": 1200
+    },
+    "tags": ["code", "python", "graph", "bfs"]
+  },
+  {
+    "id": "dfs_python",
+    "input": "Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["def dfs", "visited", "return"],
+      "regex": [
+        "for\\s+.*in\\s+graph",
+        "dfs\\("
+      ],
+      "max_length": 1200
+    },
+    "tags": ["code", "python", "graph", "dfs"]
+  },
+  {
+    "id": "binary_search_leftmost_python",
+    "input": "Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["def binary_search_leftmost", "left", "right", "return"],
+      "regex": [
+        "while\\s+left\\s*<=\\s*right|while\\s+left\\s*<\\s*right",
+        "mid\\s*=\\s*\\(left\\s*\\+\\s*right\\)\\s*//\\s*2"
+      ],
+      "max_length": 1000
+    },
+    "tags": ["code", "python", "search", "binary-search"]
+  },
+  {
+    "id": "shortest_path_algorithm_json",
+    "input": "Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.",
+    "checks": {
+      "response_not_empty": true,
+      "json_valid": true,
+      "must_have_keys": ["problem", "algorithm", "reason", "complexity"],
+      "max_length": 500
+    },
+    "tags": ["json", "graphs", "reasoning", "algorithms"]
+  },
+  {
+    "id": "bfs_vs_dfs_json",
+    "input": "Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.",
+    "checks": {
+      "response_not_empty": true,
+      "json_valid": true,
+      "must_have_keys": ["bfs", "dfs", "difference", "use_cases"],
+      "max_length": 700
+    },
+    "tags": ["json", "graphs", "comparison"]
+  },
+  {
+    "id": "api_design_books_json",
+    "input": "Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.",
+    "checks": {
+      "response_not_empty": true,
+      "json_valid": true,
+      "must_have_keys": ["entities", "endpoints", "risks", "notes"],
+      "max_length": 900
+    },
+    "tags": ["json", "backend", "api-design"]
+  },
+  {
+    "id": "pushkin_text",
+    "input": "Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["Пушкин"],
+      "regex": [
+        "Онегин|Капитанская дочка|Руслан и Людмила|Борис Годунов"
+      ],
+      "min_length": 220,
+      "max_length": 900
+    },
+    "tags": ["text", "literature", "russian", "pushkin"]
+  },
+  {
+    "id": "memoization_text",
+    "input": "Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["мемоизация", "рекурс"],
+      "regex": [
+        "кэш|сохраня",
+        "Фибоначч|fib"
+      ],
+      "min_length": 180,
+      "max_length": 700
+    },
+    "tags": ["text", "algorithms", "memoization"]
+  },
+  {
+    "id": "stack_queue_text",
+    "input": "Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": ["стек", "очередь"],
+      "regex": [
+        "LIFO|последним приш",
+        "FIFO|первым приш"
+      ],
+      "min_length": 180,
+      "max_length": 700
+    },
+    "tags": ["text", "data-structures", "comparison"]
+  }
+]

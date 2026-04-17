@@ -99,10 +99,19 @@ def _create_llm_instance(
     top_k: int,
     think: bool,
     num_predict: int,
-    use_traced: bool
+    seed: Optional[int],
+    use_traced: bool,
 ) -> BaseChatModel:
-    """Create LLM instance with caching - actual LLM creation logic."""
     llm_cls = TracedChatOllama if use_traced else ChatOllama
+
+    options = {
+        "num_predict": num_predict,
+    }
+    if seed is not None:
+        options["seed"] = seed
+    if think:
+        options["think"] = think
+
     return llm_cls(
         model=model,
         base_url=base_url,
@@ -111,7 +120,7 @@ def _create_llm_instance(
         num_ctx=num_ctx,
         top_p=top_p,
         top_k=top_k,
-        options={"num_predict": num_predict, "think": think} if think else {"num_predict": num_predict},
+        options=options,
     )
 
 
@@ -119,19 +128,39 @@ def get_llm(
     role: str,
     *,
     base_url: Optional[str] = None,
-    model: Optional[str] = None
+    model: Optional[str] = None,
+    stream: Optional[bool] = None,
+    temperature: Optional[float] = None,
+    top_p: Optional[float] = None,
+    top_k: Optional[int] = None,
+    num_ctx: Optional[int] = None,
+    num_predict: Optional[int] = None,
+    seed: Optional[int] = None,
+    think: Optional[bool] = None,
 ) -> BaseChatModel:
+    resolved_base_url = base_url or settings.OLLAMA_BASE_URL
+    resolved_model = model or settings.LLM_MODEL
 
-    base_url = base_url or settings.OLLAMA_BASE_URL
-    model = model or settings.LLM_MODEL
+    resolved_stream = settings.LLM_STREAM if stream is None else stream
+    resolved_temperature = settings.LLM_TEMPERATURE if temperature is None else temperature
+    resolved_num_ctx = settings.LLM_NUM_CTX if num_ctx is None else num_ctx
+    resolved_top_p = settings.LLM_TOP_P if top_p is None else top_p
+    resolved_top_k = settings.LLM_TOP_K if top_k is None else top_k
+    resolved_think = settings.LLM_THINK if think is None else think
+    resolved_num_predict = settings.LLM_NUM_PREDICT if num_predict is None else num_predict
 
-    temperature = settings.LLM_TEMPERATURE
-    num_ctx = settings.LLM_NUM_CTX
-    stream = settings.LLM_STREAM
-    top_p = settings.LLM_TOP_P
-    top_k = settings.LLM_TOP_K
-    think = settings.LLM_THINK
-    num_predict = settings.LLM_TOP_P
     use_traced = _use_traced_ollama(role)
 
-    return _create_llm_instance(model, base_url, stream, temperature, num_ctx, top_p, top_k, think, num_predict, use_traced)
+    return _create_llm_instance(
+        model=resolved_model,
+        base_url=resolved_base_url,
+        stream=resolved_stream,
+        temperature=resolved_temperature,
+        num_ctx=resolved_num_ctx,
+        top_p=resolved_top_p,
+        top_k=resolved_top_k,
+        think=resolved_think,
+        num_predict=resolved_num_predict,
+        seed=seed,
+        use_traced=use_traced,
+    )

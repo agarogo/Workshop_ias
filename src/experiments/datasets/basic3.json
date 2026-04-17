@@ -1,0 +1,182 @@
+[
+  {
+    "id": "format_json_basic",
+    "input": "Верни только JSON-объект с ключами name и age. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "json_valid": true,
+      "must_have_keys": [
+        "name",
+        "age"
+      ],
+      "max_length": 120
+    },
+    "tags": [
+      "format",
+      "json"
+    ]
+  },
+  {
+    "id": "exact_yes",
+    "input": "Ответь только одним словом: да",
+    "checks": {
+      "response_not_empty": true,
+      "equals": "да",
+      "max_length": 10
+    },
+    "tags": [
+      "instruction",
+      "exact"
+    ]
+  },
+  {
+    "id": "markdown_title",
+    "input": "Напиши markdown-заголовок уровня 1 на тему тестирования.",
+    "checks": {
+      "response_not_empty": true,
+      "regex": "^# .+",
+      "max_length": 80
+    },
+    "tags": [
+      "markdown",
+      "format"
+    ]
+  },
+  {
+    "id": "python_code_add",
+    "input": "Напиши короткую функцию на Python add(a, b), которая возвращает сумму.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": [
+        "def add",
+        "return"
+      ],
+      "max_length": 300
+    },
+    "tags": [
+      "code",
+      "python"
+    ]
+  },
+  {
+    "id": "short_http",
+    "input": "Что такое HTTP? Ответь в 1-2 предложениях.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": [
+        "HTTP"
+      ],
+      "max_length": 300
+    },
+    "tags": [
+      "facts",
+      "short"
+    ]
+  },
+  {
+    "id": "no_apology",
+    "input": "Кратко опиши, что делает цикл for в Python. Не используй слово 'извините'.",
+    "checks": {
+      "response_not_empty": true,
+      "not_contains": [
+        "извините"
+      ],
+      "max_length": 250
+    },
+    "tags": [
+      "instruction",
+      "filter"
+    ]
+  },
+  {
+    "id": "csv_colors",
+    "input": "Перечисли три цвета через запятую и пробел. Без пояснений.",
+    "checks": {
+      "response_not_empty": true,
+      "regex": "^[^,]+, [^,]+, [^,]+$",
+      "max_length": 80
+    },
+    "tags": [
+      "format",
+      "csv"
+    ]
+  },
+  {
+    "id": "json_status",
+    "input": "Верни только JSON-объект с ключами status и ok, где ok — boolean.",
+    "checks": {
+      "response_not_empty": true,
+      "json_valid": true,
+      "must_have_keys": [
+        "status",
+        "ok"
+      ],
+      "max_length": 140
+    },
+    "tags": [
+      "json",
+      "format"
+    ]
+  },
+  {
+    "id": "binary_search_short",
+    "input": "Объясни бинарный поиск максимум в двух коротких предложениях.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": [
+        "поиск"
+      ],
+      "max_length": 260
+    },
+    "tags": [
+      "algorithm",
+      "short"
+    ]
+  },
+  {
+    "id": "csharp_list",
+    "input": "Напиши одну строку на C#, которая создает список из чисел 1, 2, 3.",
+    "checks": {
+      "response_not_empty": true,
+      "contains": [
+        "List",
+        "1",
+        "2",
+        "3"
+      ],
+      "max_length": 120
+    },
+    "tags": [
+      "code",
+      "csharp"
+    ]
+  },
+  {
+    "id": "json_array_wrapper",
+    "input": "Верни только JSON-объект с ключом items, где items — массив из двух строк.",
+    "checks": {
+      "response_not_empty": true,
+      "json_valid": true,
+      "must_have_keys": [
+        "items"
+      ],
+      "max_length": 160
+    },
+    "tags": [
+      "json"
+    ]
+  },
+  {
+    "id": "regex_version",
+    "input": "Напиши строку в формате version=1.0.0",
+    "checks": {
+      "response_not_empty": true,
+      "regex": "^version=\\\\d+\\\\.\\\\d+\\\\.\\\\d+$",
+      "max_length": 30
+    },
+    "tags": [
+      "format",
+      "regex"
+    ]
+  }
+]

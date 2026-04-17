@@ -1,0 +1,11 @@
+{
+  "name": "creative_high_temp",
+  "runtime_params": {
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "top_k": 60,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  }
+}

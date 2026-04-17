@@ -9,6 +9,17 @@ class ChatMessage(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+class RuntimeParams(BaseModel):
+    temperature: Optional[float] = None
+    top_p: Optional[float] = None
+    top_k: Optional[int] = None
+    num_ctx: Optional[int] = None
+    num_predict: Optional[int] = None
+    seed: Optional[int] = None
+    think: Optional[bool] = None
+    stream: Optional[bool] = None
+
+
 class ChatCompletionRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
     model: str = "graph"
@@ -31,6 +42,8 @@ class ChatCompletionRequest(BaseModel):
     # Реплей состояния графа (OpenWebUI и др.) — подставляем, если чекпоинт/кэш пусты.
     branch_path: Optional[str] = Field(default=None, description="Подсказка workspace, если клиент передаёт состояние.")
     context: Optional[Dict[str, Any]] = Field(default=None, description="Например {'branch_path': 'test'}.")
+
+    runtime_params: Optional[RuntimeParams] = None
 
 
 class ChatCompletionChoice(BaseModel):

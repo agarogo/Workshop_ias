@@ -12,6 +12,36 @@ __all__ = [
 ]
 
 
+def _extract_runtime_params(body: ChatCompletionRequest) -> Dict[str, Any]:
+    """
+    Достает runtime_params из запроса.
+    """
+    runtime_params = getattr(body, "runtime_params", None)
+
+    if runtime_params is not None:
+        return runtime_params.model_dump(exclude_none=True)
+
+    fallback: Dict[str, Any] = {}
+
+    field_map = {
+        "temperature": "temperature",
+        "top_p": "top_p",
+        "top_k": "top_k",
+        "num_ctx": "num_ctx",
+        "num_predict": "num_predict",
+        "max_tokens": "num_predict",
+        "seed": "seed",
+        "think": "think",
+    }
+
+    for request_field, runtime_field in field_map.items():
+        value = getattr(body, request_field, None)
+        if value is not None:
+            fallback[runtime_field] = value
+
+    return fallback
+
+
 def _build_thread_and_state(
     body: ChatCompletionRequest,
     *,
@@ -61,4 +91,9 @@ def _build_thread_and_state(
     )
     # API-level hint: позволяет узлам выбирать streaming вызовы LLM.
     state["_stream"] = bool(getattr(body, "stream", False))
+
+    runtime_params_dict = _extract_runtime_params(body)
+    if runtime_params_dict:
+        state["runtime_params"] = runtime_params_dict
+
     return thread_id, state

@@ -32,10 +32,35 @@ class GodUseCase(BaseUseCase):
         if not messages:
             return {}
 
+        raw_runtime_params = state.get("runtime_params") or {}
+        runtime_params = dict(raw_runtime_params)
+
+        allowed_keys = {
+            "temperature",
+            "top_p",
+            "top_k",
+            "num_ctx",
+            "num_predict",
+            "seed",
+            "think",
+        }
+        runtime_params = {
+            key: value
+            for key, value in runtime_params.items()
+            if key in allowed_keys and value is not None
+        }
+
+        logger.debug(
+            "GodUseCase runtime params: %s",
+            runtime_params,
+        )
+
         # Параметры загрузятся из .env
         llm = get_llm(
             "default",
-            model=settings.LLM_MODEL
+            model=settings.LLM_MODEL,
+            stream=stream,
+            **runtime_params,
         )
 
         system = self._build_system_prompt(state, [])
