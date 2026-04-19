@@ -1,0 +1,61 @@
+{
+  "experiment_run_id": "06e3456e54614b42a109e44dd9add3cb",
+  "test_id": "pushkin_text",
+  "config_name": "balanced_default",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.",
+  "response_text": "Internal Server Error",
+  "score": 0.4,
+  "passed": false,
+  "latency_ms": 37.222400000246125,
+  "timestamp_utc": "2026-04-19T14:21:46.579930+00:00",
+  "thread_id": "06e3456e54614b42a109e44dd9add3cb:balanced_default:pushkin_text",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.4,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "error": {
+      "status": 500,
+      "body": "Internal Server Error"
+    }
+  },
+  "scoring": {
+    "score": 0.4,
+    "passed": false,
+    "checks_total": 5,
+    "checks_passed": 2,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:Пушкин",
+        "passed": false,
+        "message": "Ответ должен содержать 'Пушкин'."
+      },
+      {
+        "check": "regex:Онегин|Капитанская дочка|Руслан и Людмила|Борис Годунов",
+        "passed": false,
+        "message": "Ответ должен соответствовать regex 'Онегин|Капитанская дочка|Руслан и Людмила|Борис Годунов'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 21, лимит 900."
+      },
+      {
+        "check": "min_length",
+        "passed": false,
+        "message": "Длина ответа 21, минимум 220."
+      }
+    ]
+  }
+}

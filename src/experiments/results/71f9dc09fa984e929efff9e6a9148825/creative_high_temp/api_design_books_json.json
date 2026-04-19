@@ -1,0 +1,93 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "api_design_books_json",
+  "config_name": "creative_high_temp",
+  "model_name": "qwen3:4b",
+  "input_text": "Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.",
+  "response_text": "{\n  \"entities\": [\"Book\", \"Reader\"],\n  \"endpoints\": [\"/api/books\", \"/api/readers\"],\n  \"risks\": [\"Недостаточная аутентификация\", \"Перегрузка сервера\"],\n  \"notes\": [\"Данные хранятся в SQLite\", \"Требуется проверка прав для всех операций\"]\n}",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 13530.48149999995,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:api_design_books_json",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "top_k": 60,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:api_design_books_json",
+    "object": "chat.completion",
+    "created": 1776608982,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"entities\": [\"Book\", \"Reader\"],\n  \"endpoints\": [\"/api/books\", \"/api/readers\"],\n  \"risks\": [\"Недостаточная аутентификация\", \"Перегрузка сервера\"],\n  \"notes\": [\"Данные хранятся в SQLite\", \"Требуется проверка прав для всех операций\"]\n}"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:api_design_books_json",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:api_design_books_json"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 8,
+    "checks_passed": 8,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "json_valid",
+        "passed": true,
+        "message": "Ответ должен быть валидным JSON."
+      },
+      {
+        "check": "json_is_object",
+        "passed": true,
+        "message": "JSON должен быть объектом."
+      },
+      {
+        "check": "must_have_key:entities",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'entities'."
+      },
+      {
+        "check": "must_have_key:endpoints",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'endpoints'."
+      },
+      {
+        "check": "must_have_key:risks",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'risks'."
+      },
+      {
+        "check": "must_have_key:notes",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'notes'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 236, лимит 900."
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "binary_search_leftmost_python",
+  "config_name": "think_enabled",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.",
+  "response_text": "def binary_search_leftmost(arr, target):\n    left = 0\n    right = len(arr) - 1\n    result = -1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] < target:\n            left = mid + 1\n        elif arr[mid] > target:\n            right = mid - 1\n        else:\n            result = mid\n            right = mid - 1\n    return result",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 60072.45109999894,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:binary_search_leftmost_python",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": true
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:binary_search_leftmost_python",
+    "object": "chat.completion",
+    "created": 1776609410,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "def binary_search_leftmost(arr, target):\n    left = 0\n    right = len(arr) - 1\n    result = -1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] < target:\n            left = mid + 1\n        elif arr[mid] > target:\n            right = mid - 1\n        else:\n            result = mid\n            right = mid - 1\n    return result"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:binary_search_leftmost_python",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:binary_search_leftmost_python"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 8,
+    "checks_passed": 8,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:def binary_search_leftmost",
+        "passed": true,
+        "message": "Ответ должен содержать 'def binary_search_leftmost'."
+      },
+      {
+        "check": "contains:left",
+        "passed": true,
+        "message": "Ответ должен содержать 'left'."
+      },
+      {
+        "check": "contains:right",
+        "passed": true,
+        "message": "Ответ должен содержать 'right'."
+      },
+      {
+        "check": "contains:return",
+        "passed": true,
+        "message": "Ответ должен содержать 'return'."
+      },
+      {
+        "check": "regex:while\\s+left\\s*<=\\s*right|while\\s+left\\s*<\\s*right",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'while\\\\s+left\\\\s*<=\\\\s*right|while\\\\s+left\\\\s*<\\\\s*right'."
+      },
+      {
+        "check": "regex:mid\\s*=\\s*\\(left\\s*\\+\\s*right\\)\\s*//\\s*2",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'mid\\\\s*=\\\\s*\\\\(left\\\\s*\\\\+\\\\s*right\\\\)\\\\s*//\\\\s*2'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 355, лимит 1000."
+      }
+    ]
+  }
+}

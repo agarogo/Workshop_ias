@@ -1,0 +1,93 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "bfs_python",
+  "config_name": "strict_low_temp",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.",
+  "response_text": "from collections import deque\n\ndef bfs(graph, start):\n    visited = set()\n    queue = deque([start])\n    visited.add(start)\n    order = []\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)\n    return order",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 17526.842499999475,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:strict_low_temp:bfs_python",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "top_k": 30,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:strict_low_temp:bfs_python",
+    "object": "chat.completion",
+    "created": 1776609108,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "from collections import deque\n\ndef bfs(graph, start):\n    visited = set()\n    queue = deque([start])\n    visited.add(start)\n    order = []\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)\n    return order"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:strict_low_temp:bfs_python",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:strict_low_temp:bfs_python"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 8,
+    "checks_passed": 8,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:def bfs",
+        "passed": true,
+        "message": "Ответ должен содержать 'def bfs'."
+      },
+      {
+        "check": "contains:visited",
+        "passed": true,
+        "message": "Ответ должен содержать 'visited'."
+      },
+      {
+        "check": "contains:return",
+        "passed": true,
+        "message": "Ответ должен содержать 'return'."
+      },
+      {
+        "check": "regex:deque",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'deque'."
+      },
+      {
+        "check": "regex:while\\s+",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'while\\\\s+'."
+      },
+      {
+        "check": "regex:popleft\\(",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'popleft\\\\('."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 392, лимит 1200."
+      }
+    ]
+  }
+}

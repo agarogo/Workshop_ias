@@ -1,0 +1,18 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "dataset_path": "src/experiments/datasets/basic.json",
+  "selected_configs": [
+    "balanced_default",
+    "creative_high_temp",
+    "strict_low_temp",
+    "think_enabled"
+  ],
+  "selected_models": [
+    "qwen3:4b",
+    "qwen3:4b",
+    "qwen3:4b",
+    "qwen3:4b"
+  ],
+  "total_jobs": 48,
+  "created_at_utc": "2026-04-19T14:22:09.453456+00:00"
+}

@@ -1,3 +1,4 @@
+# src/experiments/runner.py
 import argparse
 import json
 import re
@@ -7,7 +8,7 @@ import urllib.request
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from src.experiments.report import write_csv, write_summary
 from src.experiments.scoring import score_response
@@ -22,44 +23,8 @@ PROJECT_ROOT = SRC_DIR.parent
 
 def _safe_name(value: str) -> str:
     value = value.strip()
-    value = re.sub(r'[<>:"/\\\\|?*\\s]+', "_", value)
+    value = re.sub(r'[<>:"/\\|?*\s]+', "_", value)
     return value[:120] or "unnamed"
-
-
-def save_test_result_json(
-    *,
-    output_dir: Path,
-    experiment_run_id: str,
-    config_name: str,
-    test_id: str,
-    row: Dict[str, Any],
-) -> None:
-    config_dir = output_dir / experiment_run_id / _safe_name(config_name)
-    config_dir.mkdir(parents=True, exist_ok=True)
-
-    test_file = config_dir / f"{_safe_name(test_id)}.json"
-
-    test_payload = {
-        "experiment_run_id": row["experiment_run_id"],
-        "test_id": row["test_id"],
-        "config_name": row["config_name"],
-        "input_text": row["input_text"],
-        "response_text": row["response_text"],
-        "score": row["score"],
-        "passed": row["passed"],
-        "latency_ms": row["latency_ms"],
-        "timestamp_utc": row["timestamp_utc"],
-        "thread_id": row.get("thread_id"),
-        "trace_id": row.get("trace_id"),
-        "runtime_params": row.get("runtime_params", {}),
-        "raw_response": row.get("raw_response", {}),
-        "scoring": row.get("scoring", {}),
-    }
-
-    test_file.write_text(
-        json.dumps(test_payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
 
 
 def resolve_path(path_str: str, *, expect_dir: bool = False) -> Path:
@@ -80,11 +45,9 @@ def resolve_path(path_str: str, *, expect_dir: bool = False) -> Path:
         if not expect_dir and candidate.is_file():
             return candidate
 
-    checked = "\\n".join(f"- {str(c)}" for c in candidates)
+    checked = "\n".join(f"- {str(c)}" for c in candidates)
     kind = "directory" if expect_dir else "file"
-    raise FileNotFoundError(
-        f"Could not find {kind}: {path_str}\\nChecked:\\n{checked}"
-    )
+    raise FileNotFoundError(f"Could not find {kind}: {path_str}\nChecked:\n{checked}")
 
 
 def load_dataset(dataset_path: str | Path) -> List[Dict[str, Any]]:
@@ -193,6 +156,110 @@ def call_chat_completion(
         }
 
 
+def save_test_result_json(
+    *,
+    output_dir: Path,
+    experiment_run_id: str,
+    config_name: str,
+    test_id: str,
+    row: Dict[str, Any],
+) -> None:
+    config_dir = output_dir / experiment_run_id / _safe_name(config_name)
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    test_file = config_dir / f"{_safe_name(test_id)}.json"
+    test_payload = {
+        "experiment_run_id": row["experiment_run_id"],
+        "test_id": row["test_id"],
+        "config_name": row["config_name"],
+        "model_name": row.get("model_name"),
+        "input_text": row["input_text"],
+        "response_text": row["response_text"],
+        "score": row["score"],
+        "passed": row["passed"],
+        "latency_ms": row["latency_ms"],
+        "timestamp_utc": row["timestamp_utc"],
+        "thread_id": row.get("thread_id"),
+        "trace_id": row.get("trace_id"),
+        "runtime_params": row.get("runtime_params", {}),
+        "raw_response": row.get("raw_response", {}),
+        "scoring": row.get("scoring", {}),
+    }
+
+    test_file.write_text(
+        json.dumps(test_payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def save_run_manifest(
+    *,
+    output_dir: Path,
+    experiment_run_id: str,
+    dataset_path: str,
+    selected_configs: List[str],
+    selected_models: List[str],
+    total_jobs: int,
+) -> None:
+    run_dir = output_dir / experiment_run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    manifest = {
+        "experiment_run_id": experiment_run_id,
+        "dataset_path": dataset_path,
+        "selected_configs": selected_configs,
+        "selected_models": selected_models,
+        "total_jobs": total_jobs,
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+    }
+
+    (run_dir / "run.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def prepare_matrix(
+    *,
+    configs: List[Dict[str, Any]],
+    default_model: Optional[str],
+    selected_config_names: Optional[List[str]] = None,
+    selected_models: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
+    config_name_set = set(selected_config_names or [])
+    filtered_configs = [
+        cfg for cfg in configs
+        if not config_name_set or cfg["name"] in config_name_set
+    ]
+
+    models = [m for m in (selected_models or []) if m]
+
+    matrix: List[Dict[str, Any]] = []
+    if models:
+        for cfg in filtered_configs:
+            for model_name in models:
+                matrix.append(
+                    {
+                        "config_name": f"{cfg['name']}__{_safe_name(model_name)}",
+                        "base_config_name": cfg["name"],
+                        "runtime_params": cfg.get("runtime_params", {}),
+                        "model": model_name,
+                    }
+                )
+    else:
+        for cfg in filtered_configs:
+            matrix.append(
+                {
+                    "config_name": cfg["name"],
+                    "base_config_name": cfg["name"],
+                    "runtime_params": cfg.get("runtime_params", {}),
+                    "model": cfg.get("model") or default_model,
+                }
+            )
+
+    return matrix
+
+
 def run_experiment(
     *,
     dataset_path: str,
@@ -202,7 +269,9 @@ def run_experiment(
     db_path: str,
     output_dir: str,
     timeout_seconds: int,
-) -> List[Dict[str, Any]]:
+    selected_config_names: Optional[List[str]] = None,
+    selected_models: Optional[List[str]] = None,
+) -> Dict[str, Any]:
     dataset = load_dataset(dataset_path)
     configs = load_configs(configs_dir)
 
@@ -213,13 +282,29 @@ def run_experiment(
     output = PROJECT_ROOT / output_dir if not Path(output_dir).is_absolute() else Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
 
+    matrix = prepare_matrix(
+        configs=configs,
+        default_model=default_model,
+        selected_config_names=selected_config_names,
+        selected_models=selected_models,
+    )
+
     conn = init_db(db_file)
     results: List[Dict[str, Any]] = []
 
-    for config in configs:
-        config_name = config["name"]
-        runtime_params = config.get("runtime_params", {})
-        model = config.get("model") or default_model
+    save_run_manifest(
+        output_dir=output,
+        experiment_run_id=experiment_run_id,
+        dataset_path=dataset_path,
+        selected_configs=[item["base_config_name"] for item in matrix],
+        selected_models=[item["model"] for item in matrix if item.get("model")],
+        total_jobs=len(matrix) * len(dataset),
+    )
+
+    for config_item in matrix:
+        config_name = config_item["config_name"]
+        runtime_params = config_item["runtime_params"]
+        model = config_item["model"]
 
         for case in dataset:
             test_id = case["id"]
@@ -241,6 +326,7 @@ def run_experiment(
                 "experiment_run_id": experiment_run_id,
                 "test_id": test_id,
                 "config_name": config_name,
+                "model_name": model,
                 "input_text": prompt,
                 "response_text": raw["response_text"],
                 "score": scoring["score"],
@@ -273,18 +359,23 @@ def run_experiment(
 
     write_csv(results, output / "results.csv")
     write_summary(results, output / "summary.md")
-    return results
+
+    return {
+        "experiment_run_id": experiment_run_id,
+        "results_count": len(results),
+        "output_dir": str(output / experiment_run_id),
+    }
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run parameter experiments for workshop.")
-    parser.add_argument("--dataset", default="src/experiments/datasets/basic.json", help="Path to dataset JSON file.")
-    parser.add_argument("--configs", default="src/experiments/configs", help="Path to directory with config JSON files.")
-    parser.add_argument("--base-url", default="http://localhost:8000", help="Workshop base URL.")
-    parser.add_argument("--model", default=None, help="Default model name.")
-    parser.add_argument("--db-path", default="src/experiments/results/results.sqlite3", help="SQLite output path.")
-    parser.add_argument("--output-dir", default="src/experiments/results", help="Directory for reports.")
-    parser.add_argument("--timeout-seconds", type=int, default=120, help="HTTP timeout.")
+    parser.add_argument("--dataset", default="src/experiments/datasets/basic.json")
+    parser.add_argument("--configs", default="src/experiments/configs")
+    parser.add_argument("--base-url", default="http://localhost:8000")
+    parser.add_argument("--model", default=None)
+    parser.add_argument("--db-path", default="src/experiments/results/results.sqlite3")
+    parser.add_argument("--output-dir", default="src/experiments/results")
+    parser.add_argument("--timeout-seconds", type=int, default=120)
     return parser
 
 

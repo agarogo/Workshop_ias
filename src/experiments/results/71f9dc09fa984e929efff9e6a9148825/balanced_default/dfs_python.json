@@ -1,0 +1,88 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "dfs_python",
+  "config_name": "balanced_default",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.",
+  "response_text": "def dfs(graph, start):\n    visited = set()\n    order = []\n    def dfs_recursive(node):\n        visited.add(node)\n        order.append(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                dfs_recursive(neighbor)\n    dfs_recursive(start)\n    return order",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 43833.633300000656,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:dfs_python",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.4,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:dfs_python",
+    "object": "chat.completion",
+    "created": 1776608673,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "def dfs(graph, start):\n    visited = set()\n    order = []\n    def dfs_recursive(node):\n        visited.add(node)\n        order.append(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                dfs_recursive(neighbor)\n    dfs_recursive(start)\n    return order"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:dfs_python",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:dfs_python"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 7,
+    "checks_passed": 7,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:def dfs",
+        "passed": true,
+        "message": "Ответ должен содержать 'def dfs'."
+      },
+      {
+        "check": "contains:visited",
+        "passed": true,
+        "message": "Ответ должен содержать 'visited'."
+      },
+      {
+        "check": "contains:return",
+        "passed": true,
+        "message": "Ответ должен содержать 'return'."
+      },
+      {
+        "check": "regex:for\\s+.*in\\s+graph",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'for\\\\s+.*in\\\\s+graph'."
+      },
+      {
+        "check": "regex:dfs\\(",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'dfs\\\\('."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 306, лимит 1200."
+      }
+    ]
+  }
+}

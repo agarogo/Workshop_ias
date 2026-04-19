@@ -1,0 +1,88 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "stack_queue_text",
+  "config_name": "balanced_default",
+  "model_name": "qwen3:4b",
+  "input_text": "Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.",
+  "response_text": "Стек работает по принципу **LIFO** (Last In, First Out) — элементы добавляются и удаляются с одного конца, что означает, что последний введённый объект становится первым доступным. Примером может служить **стопка книг**: если добавлять книги сверху, то первая взятая будет самой верхней. Очередь, в свою очередь, функционирует по правилу **FIFO** (First In, First Out), обеспечивая обработку элементов в порядке их поступления, при этом операции добавления и удаления происходят с двух концов. Жизненным примером здесь является **очередь в магазине**: клиенты обслуживаются в порядке прибытия, то есть первый пришедший уходит первым.",
+  "score": 0.8571,
+  "passed": false,
+  "latency_ms": 7909.046199998556,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:stack_queue_text",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.4,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:stack_queue_text",
+    "object": "chat.completion",
+    "created": 1776608767,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "Стек работает по принципу **LIFO** (Last In, First Out) — элементы добавляются и удаляются с одного конца, что означает, что последний введённый объект становится первым доступным. Примером может служить **стопка книг**: если добавлять книги сверху, то первая взятая будет самой верхней. Очередь, в свою очередь, функционирует по правилу **FIFO** (First In, First Out), обеспечивая обработку элементов в порядке их поступления, при этом операции добавления и удаления происходят с двух концов. Жизненным примером здесь является **очередь в магазине**: клиенты обслуживаются в порядке прибытия, то есть первый пришедший уходит первым."
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:stack_queue_text",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:stack_queue_text"
+  },
+  "scoring": {
+    "score": 0.8571,
+    "passed": false,
+    "checks_total": 7,
+    "checks_passed": 6,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:стек",
+        "passed": false,
+        "message": "Ответ должен содержать 'стек'."
+      },
+      {
+        "check": "contains:очередь",
+        "passed": true,
+        "message": "Ответ должен содержать 'очередь'."
+      },
+      {
+        "check": "regex:LIFO|последним приш",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'LIFO|последним приш'."
+      },
+      {
+        "check": "regex:FIFO|первым приш",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'FIFO|первым приш'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 633, лимит 700."
+      },
+      {
+        "check": "min_length",
+        "passed": true,
+        "message": "Длина ответа 633, минимум 180."
+      }
+    ]
+  }
+}

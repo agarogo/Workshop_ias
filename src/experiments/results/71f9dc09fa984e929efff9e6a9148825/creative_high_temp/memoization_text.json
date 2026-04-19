@@ -1,0 +1,88 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "memoization_text",
+  "config_name": "creative_high_temp",
+  "model_name": "qwen3:4b",
+  "input_text": "Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.",
+  "response_text": "Мемоизация — это техника, которая сохраняет результаты вычислений в рекурсивных алгоритмах, чтобы не повторять их. Это ускоряет программу, так как при следующем вызове подзадачи можно сразу вернуть сохранённый результат, а не вычислять заново. Особенно полезно для задач с множественными повторяющимися подзадачами, как в вычислении чисел Фибоначчи. Благодаря этому избегаем экспоненциального роста времени выполнения и значительно повышаем скорость алгоритма.",
+  "score": 0.8571,
+  "passed": false,
+  "latency_ms": 6937.761099999989,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:memoization_text",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "top_k": 60,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:memoization_text",
+    "object": "chat.completion",
+    "created": 1776609003,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "Мемоизация — это техника, которая сохраняет результаты вычислений в рекурсивных алгоритмах, чтобы не повторять их. Это ускоряет программу, так как при следующем вызове подзадачи можно сразу вернуть сохранённый результат, а не вычислять заново. Особенно полезно для задач с множественными повторяющимися подзадачами, как в вычислении чисел Фибоначчи. Благодаря этому избегаем экспоненциального роста времени выполнения и значительно повышаем скорость алгоритма."
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:memoization_text",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:memoization_text"
+  },
+  "scoring": {
+    "score": 0.8571,
+    "passed": false,
+    "checks_total": 7,
+    "checks_passed": 6,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:мемоизация",
+        "passed": false,
+        "message": "Ответ должен содержать 'мемоизация'."
+      },
+      {
+        "check": "contains:рекурс",
+        "passed": true,
+        "message": "Ответ должен содержать 'рекурс'."
+      },
+      {
+        "check": "regex:кэш|сохраня",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'кэш|сохраня'."
+      },
+      {
+        "check": "regex:Фибоначч|fib",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'Фибоначч|fib'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 460, лимит 700."
+      },
+      {
+        "check": "min_length",
+        "passed": true,
+        "message": "Длина ответа 460, минимум 180."
+      }
+    ]
+  }
+}

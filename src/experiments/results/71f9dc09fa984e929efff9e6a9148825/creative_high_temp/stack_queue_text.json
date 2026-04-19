@@ -1,0 +1,88 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "stack_queue_text",
+  "config_name": "creative_high_temp",
+  "model_name": "qwen3:4b",
+  "input_text": "Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.",
+  "response_text": "Стек (LIFO — last-in-first-out) — структура данных, где элементы добавляются и удаляются только с одной стороны, обеспечивая, что последний вставленный элемент удаляется первым, например, стопка книг, где последняя поставлена книга берётся первой. В отличие от этого, очередь (FIFO — first-in-first-out) обрабатывает элементы в порядке добавления, следуя принципу «первым пришёл — первым вышел», как, например, очередь в банке, где первым пришедшим обслуживается первым.",
+  "score": 0.8571,
+  "passed": false,
+  "latency_ms": 18170.03680000016,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:stack_queue_text",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "top_k": 60,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:stack_queue_text",
+    "object": "chat.completion",
+    "created": 1776609021,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "Стек (LIFO — last-in-first-out) — структура данных, где элементы добавляются и удаляются только с одной стороны, обеспечивая, что последний вставленный элемент удаляется первым, например, стопка книг, где последняя поставлена книга берётся первой. В отличие от этого, очередь (FIFO — first-in-first-out) обрабатывает элементы в порядке добавления, следуя принципу «первым пришёл — первым вышел», как, например, очередь в банке, где первым пришедшим обслуживается первым."
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:stack_queue_text",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:creative_high_temp:stack_queue_text"
+  },
+  "scoring": {
+    "score": 0.8571,
+    "passed": false,
+    "checks_total": 7,
+    "checks_passed": 6,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:стек",
+        "passed": false,
+        "message": "Ответ должен содержать 'стек'."
+      },
+      {
+        "check": "contains:очередь",
+        "passed": true,
+        "message": "Ответ должен содержать 'очередь'."
+      },
+      {
+        "check": "regex:LIFO|последним приш",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'LIFO|последним приш'."
+      },
+      {
+        "check": "regex:FIFO|первым приш",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'FIFO|первым приш'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 470, лимит 700."
+      },
+      {
+        "check": "min_length",
+        "passed": true,
+        "message": "Длина ответа 470, минимум 180."
+      }
+    ]
+  }
+}

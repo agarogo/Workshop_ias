@@ -1,0 +1,56 @@
+{
+  "experiment_run_id": "06e3456e54614b42a109e44dd9add3cb",
+  "test_id": "bfs_vs_dfs_json",
+  "config_name": "strict_low_temp",
+  "model_name": "qwen3:4b",
+  "input_text": "Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.",
+  "response_text": "Internal Server Error",
+  "score": 0.5,
+  "passed": false,
+  "latency_ms": 28.967600001124083,
+  "timestamp_utc": "2026-04-19T14:21:46.579930+00:00",
+  "thread_id": "06e3456e54614b42a109e44dd9add3cb:strict_low_temp:bfs_vs_dfs_json",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "top_k": 30,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "error": {
+      "status": 500,
+      "body": "Internal Server Error"
+    }
+  },
+  "scoring": {
+    "score": 0.5,
+    "passed": false,
+    "checks_total": 4,
+    "checks_passed": 2,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "json_valid",
+        "passed": false,
+        "message": "Ответ должен быть валидным JSON."
+      },
+      {
+        "check": "json_is_object",
+        "passed": false,
+        "message": "JSON должен быть объектом."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 21, лимит 700."
+      }
+    ]
+  }
+}

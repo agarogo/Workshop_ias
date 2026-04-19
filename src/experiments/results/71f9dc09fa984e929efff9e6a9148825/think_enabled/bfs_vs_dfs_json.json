@@ -1,0 +1,93 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "bfs_vs_dfs_json",
+  "config_name": "think_enabled",
+  "model_name": "qwen3:4b",
+  "input_text": "Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.",
+  "response_text": "{\n  \"bfs\": \"BFS explores all neighbors level by level using a queue\",\n  \"dfs\": \"DFS explores as deep as possible along one path before backtracking using a stack\",\n  \"difference\": \"BFS uses a queue to explore nodes level by level, while DFS uses a stack to explore deeply before backtracking\",\n  \"use_cases\": {\n    \"bfs\": \"Shortest path in unweighted graphs, network broadcasting\",\n    \"dfs\": \"Cycle detection, maze solving, recursive problem solving\"\n  }\n}",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 10499.200300000666,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:bfs_vs_dfs_json",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": true
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:bfs_vs_dfs_json",
+    "object": "chat.completion",
+    "created": 1776609429,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"bfs\": \"BFS explores all neighbors level by level using a queue\",\n  \"dfs\": \"DFS explores as deep as possible along one path before backtracking using a stack\",\n  \"difference\": \"BFS uses a queue to explore nodes level by level, while DFS uses a stack to explore deeply before backtracking\",\n  \"use_cases\": {\n    \"bfs\": \"Shortest path in unweighted graphs, network broadcasting\",\n    \"dfs\": \"Cycle detection, maze solving, recursive problem solving\"\n  }\n}"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:bfs_vs_dfs_json",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:bfs_vs_dfs_json"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 8,
+    "checks_passed": 8,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "json_valid",
+        "passed": true,
+        "message": "Ответ должен быть валидным JSON."
+      },
+      {
+        "check": "json_is_object",
+        "passed": true,
+        "message": "JSON должен быть объектом."
+      },
+      {
+        "check": "must_have_key:bfs",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'bfs'."
+      },
+      {
+        "check": "must_have_key:dfs",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'dfs'."
+      },
+      {
+        "check": "must_have_key:difference",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'difference'."
+      },
+      {
+        "check": "must_have_key:use_cases",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'use_cases'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 457, лимит 700."
+      }
+    ]
+  }
+}

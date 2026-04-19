@@ -1,51 +1,49 @@
 experiment_run_id,test_id,config_name,score,passed,latency_ms,timestamp_utc,thread_id,trace_id,input_text,response_text
-2ac5dba586c4403fb5831812c5c19b2f,fib_recursive_python,balanced_default,1.0,True,13767.326000001049,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
+71f9dc09fa984e929efff9e6a9148825,fib_recursive_python,balanced_default,1.0,True,15306.128299998818,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
     if n == 0:
         return 0
     elif n == 1:
         return 1
     else:
         return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)"
-2ac5dba586c4403fb5831812c5c19b2f,fib_dp_python,balanced_default,0.8333,False,22496.200600005977,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
-    fib = [0] * (n + 1)
+71f9dc09fa984e929efff9e6a9148825,fib_dp_python,balanced_default,1.0,True,35864.54430000049,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
+    dp = [0] * (n + 1)
+    dp[0] = 0
     if n >= 1:
-        fib[1] = 1
+        dp[1] = 1
     for i in range(2, n + 1):
-        fib[i] = fib[i-1] + fib[i-2]
-    return fib[n]"
-2ac5dba586c4403fb5831812c5c19b2f,gcd_euclid_python,balanced_default,1.0,True,13015.448099999048,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]"
+71f9dc09fa984e929efff9e6a9148825,gcd_euclid_python,balanced_default,1.0,True,10746.290200000658,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
     while b:
         a, b = b, a % b
     return a"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_python,balanced_default,1.0,True,15477.617100004863,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","from collections import deque
+71f9dc09fa984e929efff9e6a9148825,bfs_python,balanced_default,1.0,True,38244.978300001094,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","from collections import deque
 
 def bfs(graph, start):
     visited = set()
     queue = deque([start])
-    visited.add(start)
-    result = []
+    order = []
     while queue:
         node = queue.popleft()
-        result.append(node)
+        visited.add(node)
+        order.append(node)
         for neighbor in graph.get(node, []):
             if neighbor not in visited:
-                visited.add(neighbor)
                 queue.append(neighbor)
-    return result"
-2ac5dba586c4403fb5831812c5c19b2f,dfs_python,balanced_default,1.0,True,56953.61459999549,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
+    return order"
+71f9dc09fa984e929efff9e6a9148825,dfs_python,balanced_default,1.0,True,43833.633300000656,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
     visited = set()
-    stack = [start]
-    result = []
-    while stack:
-        node = stack.pop()
-        if node not in visited:
-            visited.add(node)
-            result.append(node)
-            for neighbor in graph.get(node, []):
-                if neighbor not in visited:
-                    stack.append(neighbor)
-    return result"
-2ac5dba586c4403fb5831812c5c19b2f,binary_search_leftmost_python,balanced_default,1.0,True,24276.020499994047,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
+    order = []
+    def dfs_recursive(node):
+        visited.add(node)
+        order.append(node)
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                dfs_recursive(neighbor)
+    dfs_recursive(start)
+    return order"
+71f9dc09fa984e929efff9e6a9148825,binary_search_leftmost_python,balanced_default,1.0,True,22328.381699999227,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
     left, right = 0, len(arr) - 1
     while left <= right:
         mid = (left + right) // 2
@@ -54,151 +52,142 @@ def bfs(graph, start):
         elif arr[mid] > target:
             right = mid - 1
         else:
-            if mid > 0 and arr[mid - 1] == target:
-                right = mid - 1
-            else:
+            if mid == 0 or arr[mid - 1] != target:
                 return mid
+            right = mid - 1
     return -1"
-2ac5dba586c4403fb5831812c5c19b2f,shortest_path_algorithm_json,balanced_default,1.0,True,11235.437499999534,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
-  ""problem"": ""Поиск кратчайшего пути во взвешенном графе без отрицательных рёбер"",
-  ""algorithm"": ""Дейкстра"",
-  ""reason"": ""Алгоритм Дейкстры подходит для графов с неотрицательными весами, так как гарантирует нахождение кратчайшего пути за логарифмическую сложность при использовании прайоритетной очереди."",
+71f9dc09fa984e929efff9e6a9148825,shortest_path_algorithm_json,balanced_default,1.0,True,26015.402700000777,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
+  ""problem"": ""shortest path in weighted graph without negative edges"",
+  ""algorithm"": ""Dijkstra's algorithm"",
+  ""reason"": ""Dijkstra's algorithm efficiently finds the shortest path in a graph with non-negative edge weights by using a priority queue to select the next node with the smallest known distance, ensuring no negative cycles affect the result."",
   ""complexity"": ""O(E log V)""
 }"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_vs_dfs_json,balanced_default,1.0,True,35079.014100003405,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
-  ""bfs"": ""Breadth-First Search (BFS) — обрабатывает узлы по уровням, используя очередь."",
-  ""dfs"": ""Depth-First Search (DFS) — рекурсивно обрабатывает узлы, углубляясь в путь, используя стек."",
-  ""difference"": ""BFS подходит для поиска кратчайшего пути в графах, DFS — для поиска циклов и рекурсивных задач. BFS использует очередь, DFS — стек."",
+71f9dc09fa984e929efff9e6a9148825,bfs_vs_dfs_json,balanced_default,1.0,True,12631.07409999975,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
+  ""bfs"": ""Breadth-First Search (BFS) — обрабатывает узлы уровня за уровнем, ищет кратчайший путь в неориентированных графах."",
+  ""dfs"": ""Depth-First Search (DFS) — рекурсивно ищет узлы в глубину, затем возвращает, подходит для поиска циклов и рекурсивных задач."",
+  ""difference"": ""BFS обрабатывает все узлы текущего уровня перед переходом к следующему, оптимален для кратчайшего пути. DFS идёт глубже, затем возвращает, лучше для циклов и рекурсивных задач."",
   ""use_cases"": [
-    ""Поиск кратчайшего пути"",
-    ""Проверка связности графа"",
-    ""Поиск циклов"",
-    ""Рекурсивные задачи""
+    ""BFS: Поиск кратчайшего пути в социальных сетях, картография."",
+    ""DFS: Проверка циклов в графах, обход деревьев, игра в лабиринт.""
   ]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,api_design_books_json,balanced_default,1.0,True,15532.538100000238,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
-  ""entities"": [""Book"", ""User"", ""BorrowRecord""],
-  ""endpoints"": [
-    ""GET /api/books"",
-    ""POST /api/books"",
-    ""GET /api/users"",
-    ""POST /api/users"",
-    ""GET /api/borrow-records"",
-    ""POST /api/borrow-records""
-  ],
+71f9dc09fa984e929efff9e6a9148825,api_design_books_json,balanced_default,1.0,True,10478.754600000684,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
+  ""entities"": [""Book"", ""Reader"", ""Author""],
+  ""endpoints"": [""/api/books"", ""/api/readers"", ""/api/authors"", ""/api/books/{id}"", ""/api/readers/{id}""],
   ""risks"": [
-    ""Нет проверки прав доступа для операций с книгами"",
-    ""Риск утечки данных при несанкционированном доступе к эндпоинтам пользователей"",
-    ""Ограничение на количество одновременных запросов к базе данных""
+    ""Утечка данных при несанкционированном доступе"",
+    ""Перегрузка сервера при большом количестве запросов"",
+    ""Несанкционированный доступ к книге""
   ],
-  ""notes"": ""API требует JWT-токена для всех операций, кроме GET /api/books. Максимальное количество книг в системе — 5000.""
+  ""notes"": [
+    ""Эндпоинты требуют аутентификации"",
+    ""Статус книги: в наличии/отсутствие""
+  ]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,pushkin_text,balanced_default,0.8,False,22661.80620000523,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Пушкин занимает особое место в истории русской литературы как один из основателей современного литературного языка и ключевой фигуры в развитии русской поэзии. Его произведение «Евгений Онегин» не только стало классическим примером поэтического мастерства, но и определило направление русской литературы XIX века, впервые сочетая реалистические элементы с глубоким психологическим анализом персонажей. Благодаря уникальной способности передавать сложные эмоции и внутренние конфликты, Пушкин создал образцы, которые продолжают служить образцом для последующих поколений писателей. Его творчество не только укрепило позиции русской литературы на мировой арене, но и стало важным этапом в формировании русской культурной идентичности. Влияние Пушкина на последующие поколения, включая таких великих писателей, как Лермонтов и Герцен, оставило неизгладимый след в эволюции русской литературы, подтверждая его роль как основоположника современной русской литературы. Таким образом, Пушкин не только определил стиль и направление русской литературы в XIX веке, но и оставил свой неизгладимый след в мировой литературе, став символом русской культурной идентичности."
-2ac5dba586c4403fb5831812c5c19b2f,memoization_text,balanced_default,1.0,True,4378.268899999966,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, при которой результаты вычислений сохраняются в памяти, чтобы при повторном вызове алгоритма не пересчитывать их заново. Она нужна для ускорения рекурсивных алгоритмов, где одни и те же значения вычисляются несколько раз (например, в задаче Фибоначчи). Благодаря мемоизации программа сразу возвращает сохранённый результат вместо повторного расчёта, что значительно сокращает время выполнения. Это особенно важно, когда рекурсия приводит к множеству повторяющихся вызовов. В итоге мемоизация делает алгоритмы быстрее и эффективнее."
-2ac5dba586c4403fb5831812c5c19b2f,stack_queue_text,balanced_default,0.8571,False,17346.272200004023,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:balanced_default:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — *Last In, First Out*) работает по принципу добавления и удаления элементов только с одной стороны, где последний введённый элемент удаляется первым, например, стопка книг: последняя поставленная книга удаляется первой. Очередь (FIFO — *First In, First Out*), в свою очередь, обеспечивает добавление элементов в конец и удаление из начала, следуя правилу «первый пришёл — первый вышел», как очередь в магазине, где клиенты обслуживаются в порядке их прибытия."
-2ac5dba586c4403fb5831812c5c19b2f,fib_recursive_python,creative_high_temp,1.0,True,7758.079799998086,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
+71f9dc09fa984e929efff9e6a9148825,pushkin_text,balanced_default,0.8,False,10160.081899999568,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Пушкин занимает центральное место в истории русской литературы как один из самых влиятельных и оригинальных авторов, чьи идеи и творческие решения определили путь развития русской литературы в XIX веке и далее. Его произведение «Евгений Онегин» не только стало классикой, но и впервые в русской литературе сочетало реалистические наблюдения о жизни общества с глубокими психологическими размышлениями, создавая новый жанровый формат, который вдохновил множество последующих писателей. Стиль Пушкина, характеризующийся яркостью образов и эмоциональной насыщенностью, стал основой для формирования современного русского литературного языка, делая его доступным и живым для широких слоев населения. Его поэзия, особенно стихи, не только определила традиции русской поэтики, но и внесла значительный вклад в развитие русской культуры и мышления, влияя на образовательные и социальные практики. Пушкин также сыграл ключевую роль в создании литературной идентичности России, укрепляя связь между национальной традицией и современными идеями. Таким образом, его творчество продолжает оставлять глубокий след в культуре и образовании, подчеркивая его непревзойденный вклад в формирование русской литературы как искусства."
+71f9dc09fa984e929efff9e6a9148825,memoization_text,balanced_default,1.0,True,4947.298199998841,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, которая сохраняет результаты вычислений функции для последующего использования. Она нужна, чтобы избежать повторного расчёта одних и тех же значений в рекурсивных алгоритмах, где одинаковые аргументы могут вызывать функцию несколько раз. Например, в задаче Фибоначчи без мемоизации функция многократно вычисляет те же числа, что значительно замедляет процесс. Сохраняя результаты в структуре данных (например, словаре), мемоизация позволяет сразу вернуть готовый ответ, а не пересчитывать всё заново. Это ускоряет алгоритмы, особенно при больших входных данных, делая их эффективными."
+71f9dc09fa984e929efff9e6a9148825,stack_queue_text,balanced_default,0.8571,False,7909.046199998556,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:balanced_default:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек работает по принципу **LIFO** (Last In, First Out) — элементы добавляются и удаляются с одного конца, что означает, что последний введённый объект становится первым доступным. Примером может служить **стопка книг**: если добавлять книги сверху, то первая взятая будет самой верхней. Очередь, в свою очередь, функционирует по правилу **FIFO** (First In, First Out), обеспечивая обработку элементов в порядке их поступления, при этом операции добавления и удаления происходят с двух концов. Жизненным примером здесь является **очередь в магазине**: клиенты обслуживаются в порядке прибытия, то есть первый пришедший уходит первым."
+71f9dc09fa984e929efff9e6a9148825,fib_recursive_python,creative_high_temp,1.0,True,7798.421999999846,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
     if n == 0:
         return 0
     elif n == 1:
         return 1
     else:
         return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)"
-2ac5dba586c4403fb5831812c5c19b2f,fib_dp_python,creative_high_temp,1.0,True,37409.673099995416,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
-    dp = [0] * (n + 1)
-    if n >= 1:
-        dp[1] = 1
-    for i in range(2, n + 1):
-        dp[i] = dp[i - 1] + dp[i - 2]
-    return dp[n]"
-2ac5dba586c4403fb5831812c5c19b2f,gcd_euclid_python,creative_high_temp,1.0,True,28914.327200000116,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
+71f9dc09fa984e929efff9e6a9148825,fib_dp_python,creative_high_temp,0.8333,False,29102.896699998382,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a"
+71f9dc09fa984e929efff9e6a9148825,gcd_euclid_python,creative_high_temp,1.0,True,17922.99810000077,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
     while b:
         a, b = b, a % b
     return a"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_python,creative_high_temp,0.75,False,29973.177699997905,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","def bfs(graph, start):
-    visited = set()
+71f9dc09fa984e929efff9e6a9148825,bfs_python,creative_high_temp,0.75,False,26639.206200001354,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","def bfs(graph, start):
+    visited = set([start])
     queue = [start]
-    visited.add(start)
     order = []
     while queue:
-        current = queue.pop(0)
-        order.append(current)
-        for neighbor in graph.get(current, []):
+        node = queue.pop(0)
+        order.append(node)
+        for neighbor in graph.get(node, []):
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append(neighbor)
     return order"
-2ac5dba586c4403fb5831812c5c19b2f,dfs_python,creative_high_temp,1.0,True,51788.115900002595,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
+71f9dc09fa984e929efff9e6a9148825,dfs_python,creative_high_temp,1.0,True,44906.95179999966,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
     visited = set()
+    stack = [start]
     order = []
-    def dfs_recursive(node):
-        visited.add(node)
-        order.append(node)
-        for neighbor in graph.get(node, []):
-            if neighbor not in visited:
-                dfs_recursive(neighbor)
-    dfs_recursive(start)
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            order.append(node)
+            for neighbor in graph.get(node, []):
+                if neighbor not in visited:
+                    stack.append(neighbor)
     return order"
-2ac5dba586c4403fb5831812c5c19b2f,binary_search_leftmost_python,creative_high_temp,1.0,True,15208.706600002188,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
+71f9dc09fa984e929efff9e6a9148825,binary_search_leftmost_python,creative_high_temp,1.0,True,27646.86780000011,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
     left, right = 0, len(arr) - 1
-    result = -1
     while left <= right:
         mid = (left + right) // 2
-        if arr[mid] == target:
-            result = mid
-            right = mid - 1
-        elif arr[mid] < target:
+        if arr[mid] < target:
             left = mid + 1
+        elif arr[mid] > target:
+            right = mid - 1
         else:
             right = mid - 1
-    return result"
-2ac5dba586c4403fb5831812c5c19b2f,shortest_path_algorithm_json,creative_high_temp,1.0,True,12016.34030000423,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
-  ""problem"": ""Поиск кратчайшего пути во взвешенном графе без отрицательных рёбер"",
+    return left if left < len(arr) and arr[left] == target else -1"
+71f9dc09fa984e929efff9e6a9148825,shortest_path_algorithm_json,creative_high_temp,1.0,True,32242.172399999617,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
+  ""problem"": ""Finding the shortest path in a weighted graph without negative edges"",
   ""algorithm"": ""Dijkstra"",
-  ""reason"": ""Алгоритм Дейкстры гарантирует корректность для графов с неотрицательными весами рёбер и имеет сложность O(E log V) с использованием бинарной кучи."",
+  ""reason"": ""Dijkstra's algorithm efficiently handles graphs with non-negative edge weights by using a priority queue to iteratively select the next vertex with the smallest known distance, ensuring optimal shortest path computation without negative cycle handling."",
   ""complexity"": ""O(E log V)""
 }"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_vs_dfs_json,creative_high_temp,1.0,True,17341.535899999144,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
-  ""bfs"": ""Level-by-level exploration"",
-  ""dfs"": ""Deep-first exploration"",
-  ""difference"": ""BFS processes all neighbors at current level before next; DFS goes deep into one branch. BFS finds shortest paths in unweighted graphs, DFS better for cycle detection."",
+71f9dc09fa984e929efff9e6a9148825,bfs_vs_dfs_json,creative_high_temp,1.0,True,14293.091300000015,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
+  ""bfs"": ""Breadth-First Search (uses queue, explores level by level)"",
+  ""dfs"": ""Depth-First Search (uses stack, explores deeply)"",
+  ""difference"": ""BFS processes all nodes at current level before moving to next; DFS goes deep into a branch before backtracking. BFS better for shortest path, DFS for cycle detection."",
   ""use_cases"": [
-    ""Shortest path in unweighted graphs"",
-    ""Web crawling"",
-    ""Cycle detection in graphs""
+    ""Finding shortest path in unweighted graphs"",
+    ""Cycle detection"",
+    ""Topological sorting""
   ]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,api_design_books_json,creative_high_temp,1.0,True,15282.732700004999,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
-  ""entities"": [""Book"", ""Reader"", ""Author""],
-  ""endpoints"": [""/books"", ""/readers"", ""/authors""],
-  ""risks"": [""Unauthorized access"", ""Input validation failures""],
-  ""notes"": [""All operations require authentication"", ""Book titles must be unique""]
+71f9dc09fa984e929efff9e6a9148825,api_design_books_json,creative_high_temp,1.0,True,13530.48149999995,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
+  ""entities"": [""Book"", ""Reader""],
+  ""endpoints"": [""/api/books"", ""/api/readers""],
+  ""risks"": [""Недостаточная аутентификация"", ""Перегрузка сервера""],
+  ""notes"": [""Данные хранятся в SQLite"", ""Требуется проверка прав для всех операций""]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,pushkin_text,creative_high_temp,0.8,False,13323.555900002248,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Пушкин занимает центральное место в русской литературе как её величайший творец и основатель, создавший новые формы и темы, которые определили дальнейшее развитие русской литературы. Его произведение «Евгений Онегин» не только стало образцом для последующих поэтов и писателей, но и глубоко раскрыл сложные социальные и психологические аспекты жизни русского общества в XIX веке. Благодаря оригинальным стилистическим решениям и ярким персонажам, Пушкин заложил основу для творческой традиции, которая продолжает влиять на русскую литературу до сих пор. Его работа не ограничивалась поэзией: он также укрепил позиции русского языка в литературной среде, внося значительный вклад в развитие русской культуры и мысли. Таким образом, Пушкин стал не просто автором, но и определил путь русской литературы как искусства, сохраняя свою актуальность через века. Его влияние продолжает ощущаться в современном русском литературном пространстве, вдохновляя новых авторов и подтверждая, что его творчество останется неизменным ориентиром для будущих поколений."
-2ac5dba586c4403fb5831812c5c19b2f,memoization_text,creative_high_temp,0.8571,False,7641.328999998223,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, при которой результаты вычислений сохраняются для повторного использования. Она помогает в рекурсивных алгоритмах, избегая повторного расчёта одинаковых подзадач. Сохраняя уже посчитанные значения, мемоизация значительно ускоряет выполнение программы, так как вместо новых вычислений система сразу возвращает готовый результат. Это особенно полезно, когда рекурсия приводит к множественным повторным вызовам с одинаковыми аргументами."
-2ac5dba586c4403fb5831812c5c19b2f,stack_queue_text,creative_high_temp,0.8571,False,7628.748999995878,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:creative_high_temp:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — «последним зашёл — первым вышел») работает так, что элементы добавляются и удаляются только с одной стороны (верхней), обеспечивая обратную последовательность операций. Примером служит стопка стаканов: последний поставленный стакан уходит первым при взятии. В отличие от этого, очередь (FIFO — «первым зашёл — первым вышел») добавляет элементы в одну сторону (заднюю) и удаляет из другой (передней), сохраняя порядок прибытия. Жизненным примером здесь является очередь в банке, где клиенты обслуживаются в порядке их прихода."
-2ac5dba586c4403fb5831812c5c19b2f,fib_recursive_python,strict_low_temp,1.0,True,16220.667599998706,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
+71f9dc09fa984e929efff9e6a9148825,pushkin_text,creative_high_temp,0.8,False,14277.74490000047,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Александр Пушкин, считающийся основоположником русской литературы, оставил неизгладимый след в истории национальной культуры, создавая произведения, которые до сих пор изучают и оценивают. Одним из самых значимых его произведений является поэма «Евгений Онегин», которая не только продемонстрировала новый стилевой подход, но и заложила основы для дальнейшего развития русской поэзии. Его творчество, сочетающее глубокую философскую мысль и яркую художественную индивидуальность, стало эталоном для целого поколения писателей, вдохновив их на поиск уникальных способов выражения. Пушкин не только определил литературные традиции, но и активно участвовал в общественных дискуссиях, что подчеркивает его многогранность как человека и писателя. Свои работы он создал в эпоху, когда русская литература стремилась к самобытности, и его влияние продолжает формировать современное понимание русской культуры. Таким образом, Пушкин оставляет непрерывный след в наследии русской литературы, служа образцом для будущих поколений."
+71f9dc09fa984e929efff9e6a9148825,memoization_text,creative_high_temp,0.8571,False,6937.761099999989,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, которая сохраняет результаты вычислений в рекурсивных алгоритмах, чтобы не повторять их. Это ускоряет программу, так как при следующем вызове подзадачи можно сразу вернуть сохранённый результат, а не вычислять заново. Особенно полезно для задач с множественными повторяющимися подзадачами, как в вычислении чисел Фибоначчи. Благодаря этому избегаем экспоненциального роста времени выполнения и значительно повышаем скорость алгоритма."
+71f9dc09fa984e929efff9e6a9148825,stack_queue_text,creative_high_temp,0.8571,False,18170.03680000016,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:creative_high_temp:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — last-in-first-out) — структура данных, где элементы добавляются и удаляются только с одной стороны, обеспечивая, что последний вставленный элемент удаляется первым, например, стопка книг, где последняя поставлена книга берётся первой. В отличие от этого, очередь (FIFO — first-in-first-out) обрабатывает элементы в порядке добавления, следуя принципу «первым пришёл — первым вышел», как, например, очередь в банке, где первым пришедшим обслуживается первым."
+71f9dc09fa984e929efff9e6a9148825,fib_recursive_python,strict_low_temp,1.0,True,7681.920799999716,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
     if n == 0:
         return 0
     elif n == 1:
         return 1
     else:
         return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)"
-2ac5dba586c4403fb5831812c5c19b2f,fib_dp_python,strict_low_temp,0.8333,False,13274.16059999814,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
-    if n == 0:
-        return 0
-    a, b = 0, 1
-    for _ in range(1, n):
-        a, b = b, a + b
-    return b"
-2ac5dba586c4403fb5831812c5c19b2f,gcd_euclid_python,strict_low_temp,1.0,True,9420.610499997565,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
+71f9dc09fa984e929efff9e6a9148825,fib_dp_python,strict_low_temp,0.8333,False,41745.18410000019,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
+    fib = [0] * (n + 1)
+    if n >= 1:
+        fib[1] = 1
+    for i in range(2, n + 1):
+        fib[i] = fib[i - 1] + fib[i - 2]
+    return fib[n]"
+71f9dc09fa984e929efff9e6a9148825,gcd_euclid_python,strict_low_temp,1.0,True,19538.33610000038,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
     while b:
         a, b = b, a % b
     return a"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_python,strict_low_temp,1.0,True,19243.230300002324,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","from collections import deque
+71f9dc09fa984e929efff9e6a9148825,bfs_python,strict_low_temp,1.0,True,17526.842499999475,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","from collections import deque
 
 def bfs(graph, start):
     visited = set()
     queue = deque([start])
+    visited.add(start)
     order = []
     while queue:
         node = queue.popleft()
@@ -208,18 +197,18 @@ def bfs(graph, start):
                 visited.add(neighbor)
                 queue.append(neighbor)
     return order"
-2ac5dba586c4403fb5831812c5c19b2f,dfs_python,strict_low_temp,1.0,True,25442.01439999597,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
+71f9dc09fa984e929efff9e6a9148825,dfs_python,strict_low_temp,1.0,True,29071.781999999075,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
     visited = set()
-    result = []
+    order = []
     def dfs_recursive(node):
         visited.add(node)
-        result.append(node)
+        order.append(node)
         for neighbor in graph.get(node, []):
             if neighbor not in visited:
                 dfs_recursive(neighbor)
     dfs_recursive(start)
-    return result"
-2ac5dba586c4403fb5831812c5c19b2f,binary_search_leftmost_python,strict_low_temp,1.0,True,25755.134799997904,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
+    return order"
+71f9dc09fa984e929efff9e6a9148825,binary_search_leftmost_python,strict_low_temp,1.0,True,30163.3499999989,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
     left = 0
     right = len(arr) - 1
     result = -1
@@ -233,70 +222,54 @@ def bfs(graph, start):
             result = mid
             right = mid - 1
     return result"
-2ac5dba586c4403fb5831812c5c19b2f,shortest_path_algorithm_json,strict_low_temp,1.0,True,23684.59100000473,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
-  ""problem"": ""Shortest path in a weighted graph with non-negative edge weights"",
-  ""algorithm"": ""Dijkstra"",
-  ""reason"": ""Dijkstra's algorithm guarantees the shortest path in graphs with non-negative edge weights by iteratively selecting the node with the smallest known distance using a priority queue."",
+71f9dc09fa984e929efff9e6a9148825,shortest_path_algorithm_json,strict_low_temp,1.0,True,10458.944100000735,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
+  ""problem"": ""shortest path in weighted graph without negative edges"",
+  ""algorithm"": ""Dijkstra's algorithm"",
+  ""reason"": ""Dijkstra's algorithm is suitable because the graph has no negative edges, ensuring that the first time a node is visited, the shortest path to it is found."",
   ""complexity"": ""O(E log V)""
 }"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_vs_dfs_json,strict_low_temp,1.0,True,7556.430299999192,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
+71f9dc09fa984e929efff9e6a9148825,bfs_vs_dfs_json,strict_low_temp,1.0,True,13854.873700000098,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
   ""bfs"": ""Breadth-First Search"",
   ""dfs"": ""Depth-First Search"",
-  ""difference"": ""BFS processes nodes level by level using a queue; DFS explores as deep as possible before backtracking using a stack"",
+  ""difference"": ""BFS explores all nodes level by level (shortest path); DFS explores as deep as possible (cycle detection)."",
   ""use_cases"": [
-    ""Shortest path in unweighted graphs"",
-    ""Web crawling"",
-    ""Level-order traversal"",
-    ""Cycle detection"",
-    ""Maze solving""
+    ""BFS: Shortest path in unweighted graphs"",
+    ""DFS: Cycle detection in graphs"",
+    ""BFS: Level-order traversal"",
+    ""DFS: Backtracking problems""
   ]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,api_design_books_json,strict_low_temp,1.0,True,13428.397999996378,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
-  ""entities"": [""Book"", ""Reader"", ""Author"", ""Loan""],
-  ""endpoints"": [
-    { ""path"": ""/books"", ""method"": ""GET"" },
-    { ""path"": ""/books"", ""method"": ""POST"" },
-    { ""path"": ""/readers"", ""method"": ""GET"" },
-    { ""path"": ""/readers"", ""method"": ""POST"" },
-    { ""path"": ""/loans"", ""method"": ""POST"" }
-  ],
-  ""risks"": [
-    ""Недостаточная проверка прав доступа для создания книг"",
-    ""Перегрузка сервера при высокой нагрузке на запросы"",
-    ""Неправильная валидация данных при создании займов""
-  ],
-  ""notes"": [
-    ""API требует аутентификации через JWT для всех запросов"",
-    ""Максимальное количество запросов в минуту: 100""
-  ]
+71f9dc09fa984e929efff9e6a9148825,api_design_books_json,strict_low_temp,1.0,True,10297.79039999994,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
+  ""entities"": [""Book"", ""Reader"", ""Loan""],
+  ""endpoints"": [""/api/books"", ""/api/readers"", ""/api/loans""],
+  ""risks"": [""Insufficient rate limiting"", ""Data inconsistency during concurrent updates"", ""No proper error messages""],
+  ""notes"": [""Authentication required for all endpoints"", ""Loans expire after 14 days""]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,pushkin_text,strict_low_temp,0.8,False,13660.873599998013,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Пушкин занимает центральное место в истории русской литературы, став основателем новой эпохи, которая определила дальнейшее развитие национальной литературы. Его произведение «Евгений Онегин» не только стало первым классическим романом, но и создало новый литературный жанр, сочетая реалистические элементы с философскими размышлениями. Благодаря глубокому пониманию человеческой натуры и мастерству в передаче эмоций, Пушкин вдохновил целое поколение писателей, включая таких выдающихся авторов, как Лермонтов и Грибоедов. Его стиль, характеризующийся элегантностью и яркостью образов, стал эталоном для последующих поколений, оказав влияние на формирование русской литературной традиции. Вклад Пушкина в создание национальной литературы неоспорим, так как он не только укрепил позиции русского языка в литературе, но и способствовал развитию литературной критики и теории. Таким образом, Пушкин оставляет неизгладимый след в истории русской культуры, продолжая вдохновлять современных писателей."
-2ac5dba586c4403fb5831812c5c19b2f,memoization_text,strict_low_temp,0.8571,False,6432.793099993432,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, при которой результаты вычислений сохраняются для повторного использования. Она нужна, чтобы избежать повторного расчёта одних и тех же значений в рекурсивных алгоритмах, где одна и та же задача может вызываться несколько раз. Например, при вычислении фибоначчи без мемоизации рекурсия многократно повторяет подзадачи, а мемоизация хранит уже найденные результаты, чтобы сразу их вернуть, не вычисляя заново. Это значительно ускоряет алгоритм, особенно когда подзадачи повторяются часто."
-2ac5dba586c4403fb5831812c5c19b2f,stack_queue_text,strict_low_temp,0.7143,False,6732.680299995991,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:strict_low_temp:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — Last In, First Out) работает по принципу «последний входит — первый выходит», то есть последний добавленный элемент удаляется первым, например, стопка книг: если добавлять их сверху, то сначала берутся самые верхние. Очередь (FIFO — First In, First Out) обеспечивает обработку элементов в порядке их добавления, где первый входит — первый выходит, как в очереди в банке: клиенты обслуживаются по порядку прибытия, не прерывая других."
-2ac5dba586c4403fb5831812c5c19b2f,fib_recursive_python,think_enabled,1.0,True,9005.828800000018,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
+71f9dc09fa984e929efff9e6a9148825,pushkin_text,strict_low_temp,0.8,False,16896.47739999964,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Пушкин, как один из самых значимых авторов в истории русской литературы, заложил основы для последующего развития искусства, создавая новый стиль и тематику, которые оказали глубокое влияние на целую эпоху. Его произведение «Евгений Онегин» не только стало классическим примером русской поэзии, но и определило путь развития русской литературы в XIX веке, вдохновив множество писателей на следующие поколения. Благодаря своему мастерству в поэзии Пушкин внес значительный вклад в формирование русской литературной культуры, создавая новые жанры и техники, которые помогли укрепить национальную идентичность через искусство. Его творческое наследие продолжает оставаться важным ориентиром для современных писателей, демонстрируя, как классические произведения могут оставаться актуальными в меняющемся мире. Пушкин также подчеркнул важность социальных и психологических аспектов в литературе, что стало основой для последующих исследований в русской литературе. Таким образом, его влияние на русскую литературу невозможно переоценить, так как он создал не только произведения, но и целую эстетику, которая продолжает влиять на русскую культуру до сих пор."
+71f9dc09fa984e929efff9e6a9148825,memoization_text,strict_low_temp,0.8571,False,10696.556200000487,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника хранения результатов вычислений в кэше для последующего использования. Она нужна в рекурсивных алгоритмах, чтобы избежать повторных вычислений одних и тех же значений, которые возникают из-за многократного вызова рекурсии. Сохраняя уже посчитанные результаты, мемоизация позволяет сразу вернуть их, не проводя повторной обработки. Это значительно ускоряет алгоритм, особенно когда рекурсия приводит к большим количествам повторяющихся вычислений."
+71f9dc09fa984e929efff9e6a9148825,stack_queue_text,strict_low_temp,0.7143,False,6532.067500000267,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:strict_low_temp:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — Last In, First Out) работает по принципу «последний входит — первый выходит», то есть последний добавленный элемент удаляется первым, например, стопка книг: если добавлять книги сверху, то сначала берутся самые верхние. Очередь (FIFO — First In, First Out) обеспечивает обработку элементов в порядке их добавления, где первый входит — первый выходит, как в очереди в магазине, где клиенты обслуживаются по порядку прибытия."
+71f9dc09fa984e929efff9e6a9148825,fib_recursive_python,think_enabled,1.0,True,7004.606999998941,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:fib_recursive_python,,"Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.","def fibonacci_recursive(n):
     if n == 0:
         return 0
     elif n == 1:
         return 1
     else:
         return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)"
-2ac5dba586c4403fb5831812c5c19b2f,fib_dp_python,think_enabled,0.8333,False,12825.032500004454,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
-    if n == 0:
-        return 0
-    fib = [0] * (n + 1)
-    fib[1] = 1
-    for i in range(2, n + 1):
-        fib[i] = fib[i - 1] + fib[i - 2]
-    return fib[n]"
-2ac5dba586c4403fb5831812c5c19b2f,gcd_euclid_python,think_enabled,1.0,True,33776.72429999802,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
+71f9dc09fa984e929efff9e6a9148825,fib_dp_python,think_enabled,0.8333,False,44851.4428999988,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:fib_dp_python,,"Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.","def fibonacci_dp(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a"
+71f9dc09fa984e929efff9e6a9148825,gcd_euclid_python,think_enabled,1.0,True,19443.06300000062,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:gcd_euclid_python,,"Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.","def gcd(a, b):
     while b:
         a, b = b, a % b
     return a"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_python,think_enabled,1.0,True,20606.06359999656,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","from collections import deque
+71f9dc09fa984e929efff9e6a9148825,bfs_python,think_enabled,1.0,True,17832.88309999989,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:bfs_python,,"Напиши на Python функцию bfs(graph, start), которая выполняет обход графа в ширину и возвращает порядок посещения вершин списком. Без пояснений.","from collections import deque
 
 def bfs(graph, start):
     visited = set()
     queue = deque([start])
+    visited.add(start)
     order = []
     while queue:
         node = queue.popleft()
@@ -306,21 +279,22 @@ def bfs(graph, start):
                 visited.add(neighbor)
                 queue.append(neighbor)
     return order"
-2ac5dba586c4403fb5831812c5c19b2f,dfs_python,think_enabled,1.0,True,27312.299500001245,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
+71f9dc09fa984e929efff9e6a9148825,dfs_python,think_enabled,1.0,True,25048.256000000038,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:dfs_python,,"Напиши на Python функцию dfs(graph, start), которая выполняет обход графа в глубину и возвращает порядок посещения вершин списком. Без пояснений.","def dfs(graph, start):
     visited = set()
-    result = []
-    
+    order = []
+
     def dfs_recursive(node):
         visited.add(node)
-        result.append(node)
+        order.append(node)
         for neighbor in graph.get(node, []):
             if neighbor not in visited:
                 dfs_recursive(neighbor)
-    
+
     dfs_recursive(start)
-    return result"
-2ac5dba586c4403fb5831812c5c19b2f,binary_search_leftmost_python,think_enabled,1.0,True,31337.54969999427,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
-    left, right = 0, len(arr) - 1
+    return order"
+71f9dc09fa984e929efff9e6a9148825,binary_search_leftmost_python,think_enabled,1.0,True,60072.45109999894,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:binary_search_leftmost_python,,"Напиши на Python функцию binary_search_leftmost(arr, target), которая возвращает индекс первого вхождения target в отсортированном массиве или -1. Без пояснений.","def binary_search_leftmost(arr, target):
+    left = 0
+    right = len(arr) - 1
     result = -1
     while left <= right:
         mid = (left + right) // 2
@@ -332,27 +306,40 @@ def bfs(graph, start):
             result = mid
             right = mid - 1
     return result"
-2ac5dba586c4403fb5831812c5c19b2f,shortest_path_algorithm_json,think_enabled,1.0,True,30043.86810000142,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
-  ""problem"": ""Shortest path in weighted graph without negative edges"",
-  ""algorithm"": ""Dijkstra's algorithm"",
-  ""reason"": ""Dijkstra's algorithm efficiently finds the shortest path in graphs with non-negative edge weights using a priority queue to process vertices in order of increasing distance."",
-  ""complexity"": ""O(V²)""
+71f9dc09fa984e929efff9e6a9148825,shortest_path_algorithm_json,think_enabled,0.875,False,8806.280400000105,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:shortest_path_algorithm_json,,"Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.","{
+  ""problem"": ""Shortest Path in Weighted Graph without Negative Edges"",
+  ""algorithm"": ""Dijkstra's Algorithm"",
+  ""reason"": ""Dijkstra's algorithm is suitable for finding the shortest path in a graph with non-negative edge weights because it guarantees the shortest path from the source to all nodes by iteratively selecting the node with the smallest known distance. It works efficiently when there are no negative weights, as negative weights could cause incorrect paths in other algorithms."",
+  ""complexity"": ""O(E log V) using a priority queue""
 }"
-2ac5dba586c4403fb5831812c5c19b2f,bfs_vs_dfs_json,think_enabled,1.0,True,24005.44290000107,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
-  ""bfs"": ""BFS — поиск по уровням, использует очередь. Идеален для кратчайшего пути в неориентированных графах."",
-  ""dfs"": ""DFS — глубокий поиск, использует стек. Подходит для поиска циклов и лабиринтов."",
-  ""difference"": ""BFS обрабатывает узлы по уровням, DFS — глубоко в одну ветку. BFS лучше для кратчайших путей, DFS — для задач с глубокими ветвями."",
-  ""use_cases"": [
-    ""Поиск кратчайшего пути в неориентированных графах"",
-    ""Проверка циклов и лабиринтов""
+71f9dc09fa984e929efff9e6a9148825,bfs_vs_dfs_json,think_enabled,1.0,True,10499.200300000666,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:bfs_vs_dfs_json,,"Верни только JSON-объект с ключами bfs, dfs, difference, use_cases, где кратко сравни BFS и DFS.","{
+  ""bfs"": ""BFS explores all neighbors level by level using a queue"",
+  ""dfs"": ""DFS explores as deep as possible along one path before backtracking using a stack"",
+  ""difference"": ""BFS uses a queue to explore nodes level by level, while DFS uses a stack to explore deeply before backtracking"",
+  ""use_cases"": {
+    ""bfs"": ""Shortest path in unweighted graphs, network broadcasting"",
+    ""dfs"": ""Cycle detection, maze solving, recursive problem solving""
+  }
+}"
+71f9dc09fa984e929efff9e6a9148825,api_design_books_json,think_enabled,1.0,True,17485.149599999204,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
+  ""entities"": [""Book"", ""Reader"", ""Loan""],
+  ""endpoints"": [
+    ""/api/books"",
+    ""/api/books/{id}"",
+    ""/api/readers"",
+    ""/api/readers/{id}"",
+    ""/api/loans"",
+    ""/api/loans/{id}""
+  ],
+  ""risks"": [
+    ""Book availability not validated before loan creation"",
+    ""Potential race conditions during loan updates""
+  ],
+  ""notes"": [
+    ""All endpoints require JWT authentication"",
+    ""Loan records must be atomic to prevent double-booking""
   ]
 }"
-2ac5dba586c4403fb5831812c5c19b2f,api_design_books_json,think_enabled,1.0,True,18460.043200000655,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:api_design_books_json,,"Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.","{
-  ""entities"": [""Book"", ""Reader"", ""Author""],
-  ""endpoints"": [""/books"", ""/books/{id}"", ""/readers"", ""/readers/{id}"", ""/authors""],
-  ""risks"": [""Недостаточная аутентификация"", ""Риск перебора запросов"", ""Отсутствие валидации данных""],
-  ""notes"": ""API не поддерживает аутентификацию. Ограничение на 10 запросов в минуту.""
-}"
-2ac5dba586c4403fb5831812c5c19b2f,pushkin_text,think_enabled,0.8,False,19444.005400000606,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Александр Сергеевич Пушкин занимает особое место в истории русской литературы, являясь её основателем и наиболее влиятельным поэтом XIX века. Его творчество, начиная с первых стихотворений, определило направление русской поэзии и создал новые формы выражения, которые стали образцом для последующих поколений писателей. Одним из ключевых произведений, подчеркивающих его значимость, является роман «Евгений Онегин», который не только раскрыл глубинные психологические аспекты человеческой натуры, но и стал важным этапом в развитии русской прозы. Пушкин не только вдохновил многих потомков, включая Лермонтова и Достоевского, но и заложил философские основы для понимания русской культуры в контексте мировой литературы. Его работа продолжает оказывать влияние на современное литературное наследие, подтверждая, что именно его творческий путь определил путь русской литературы в течение столетий. Таким образом, Пушкин не просто был важным автором, но и создал систему, которая до сих пор определяет стандарты и ценности русской литературы."
-2ac5dba586c4403fb5831812c5c19b2f,memoization_text,think_enabled,1.0,True,5389.886500001012,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, при которой результаты вычислений сохраняются в памяти, чтобы при повторном вызове с тем же аргументом не рассчитывать их заново. Она особенно полезна в рекурсивных алгоритмах, где один и тот же аргумент может вызываться несколько раз (например, в задаче Фибоначчи). Это ускоряет выполнение, так как вместо повторных вычислений алгоритм сразу возвращает сохранённый результат. Таким образом, мемоизация избегает избыточной работы и делает алгоритмы быстрее, особенно при больших данных."
-2ac5dba586c4403fb5831812c5c19b2f,stack_queue_text,think_enabled,0.8571,False,12649.087700003292,2026-04-17T13:31:42.543005+00:00,2ac5dba586c4403fb5831812c5c19b2f:think_enabled:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — *Last In, First Out*) и очередь (FIFO — *First In, First Out*) — две основные структуры данных, отличающиеся порядком обработки элементов. Стек добавляет и удаляет элементы только с одной стороны (верхней), следуя правилу «последний в, первый из»: например, стопка книг, где первая извлекается самая верхняя. В очередь элементы добавляются в конец и удаляются с начала, следуя правилу «первый в, первый из»: жизненным примером здесь является очередь в магазине, где клиенты обслуживаются в порядке прибытия."
+71f9dc09fa984e929efff9e6a9148825,pushkin_text,think_enabled,0.8,False,14079.353799999808,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:pushkin_text,,Напиши связный абзац из 5-6 предложений о значении Пушкина для русской литературы. Упомяни хотя бы одно произведение и не используй списки.,"Пушкин, как один из самых значимых поэтов в истории русской литературы, заложил основы для развития национальной поэзии и стал ключевым персонажем в формировании современной литературной традиции. Его произведение «Евгений Онегин» не только определило стиль и тематику русской классической литературы, но и вдохновило целое поколение писателей на следующие века. Стиль Пушкина, сочетающий эмоциональную глубину и социальную критику, стал образцом для последующих авторов, включая таких великих мастеров, как Лермонтов и Герцен. Его работы, особенно поэзия, оказали огромное влияние на развитие русской культуры и мышления, создавая основу для будущих литературных движений. Пушкин не только укрепил позиции русской литературы на международной арене, но и помог создать уникальный национальный литературный язык, который до сих пор используется в образовании и литературной практике. Таким образом, его вклад в русскую литературу остается неизменным и глубоким, определяя её дальнейшее развитие и влияние на мировую культуру."
+71f9dc09fa984e929efff9e6a9148825,memoization_text,think_enabled,1.0,True,4645.999200000006,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:memoization_text,,"Объясни простыми словами, что такое мемоизация, зачем она нужна и как помогает ускорить рекурсивные алгоритмы. Ответ дай в 4-5 предложениях.","Мемоизация — это техника, при которой результаты вычислений функции сохраняются в памяти, чтобы при повторном вызове не пересчитывать их заново. Она нужна для ускорения рекурсивных алгоритмов, где одни и те же значения могут вычисляться несколько раз (например, в задаче Фибоначчи). Сохраняя уже посчитанные результаты, мемоизация избегает повторных вычислений, что значительно сокращает время выполнения. Это особенно важно для рекурсивных алгоритмов с высокой степенью повторяющихся вызовов. В итоге, мемоизация делает алгоритмы быстрее и эффективнее."
+71f9dc09fa984e929efff9e6a9148825,stack_queue_text,think_enabled,1.0,True,9217.547899999772,2026-04-19T14:22:09.451883+00:00,71f9dc09fa984e929efff9e6a9148825:think_enabled:stack_queue_text,,Сравни стек и очередь в одном небольшом абзаце: объясни принцип работы каждой структуры и приведи по одному жизненному примеру.,"Стек (LIFO — *Last In, First Out*) работает по принципу «последний добавленный — первый удаляется», обеспечивая операции добавления и удаления элементов с одной стороны (верхней). Примером может служить стопка книг: при добавлении новой книги она помещается сверху, а для её извлечения сначала удаляется последняя. В отличие от стека, очередь (FIFO — *First In, First Out*) функционирует по правилу «первый добавленный — первый удаляется», обеспечивая добавление элементов в конец и удаление с начала. Живой пример — очередь в магазине, где клиенты ожидают по порядку, и первый пришедший обслуживается первым."

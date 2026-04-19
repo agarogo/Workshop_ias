@@ -1,0 +1,83 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "gcd_euclid_python",
+  "config_name": "think_enabled",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши на Python функцию gcd(a, b), которая реализует алгоритм Евклида. Без пояснений.",
+  "response_text": "def gcd(a, b):\n    while b:\n        a, b = b, a % b\n    return a",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 19443.06300000062,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:gcd_euclid_python",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": true
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:gcd_euclid_python",
+    "object": "chat.completion",
+    "created": 1776609307,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "def gcd(a, b):\n    while b:\n        a, b = b, a % b\n    return a"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:gcd_euclid_python",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:gcd_euclid_python"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 6,
+    "checks_passed": 6,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:def gcd",
+        "passed": true,
+        "message": "Ответ должен содержать 'def gcd'."
+      },
+      {
+        "check": "contains:return",
+        "passed": true,
+        "message": "Ответ должен содержать 'return'."
+      },
+      {
+        "check": "regex:while\\s+b\\s*!=\\s*0|while\\s+b\\s*:",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'while\\\\s+b\\\\s*!=\\\\s*0|while\\\\s+b\\\\s*:'."
+      },
+      {
+        "check": "regex:a\\s*,\\s*b\\s*=\\s*b\\s*,\\s*a\\s*%\\s*b|a\\s*=\\s*b.*%.*b",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'a\\\\s*,\\\\s*b\\\\s*=\\\\s*b\\\\s*,\\\\s*a\\\\s*%\\\\s*b|a\\\\s*=\\\\s*b.*%.*b'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 64, лимит 500."
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "experiment_run_id": "06e3456e54614b42a109e44dd9add3cb",
+  "test_id": "shortest_path_algorithm_json",
+  "config_name": "think_enabled",
+  "model_name": "qwen3:4b",
+  "input_text": "Верни только JSON-объект с ключами problem, algorithm, reason, complexity для задачи поиска кратчайшего пути во взвешенном графе без отрицательных рёбер.",
+  "response_text": "Internal Server Error",
+  "score": 0.5,
+  "passed": false,
+  "latency_ms": 29.690399998798966,
+  "timestamp_utc": "2026-04-19T14:21:46.579930+00:00",
+  "thread_id": "06e3456e54614b42a109e44dd9add3cb:think_enabled:shortest_path_algorithm_json",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": true
+  },
+  "raw_response": {
+    "error": {
+      "status": 500,
+      "body": "Internal Server Error"
+    }
+  },
+  "scoring": {
+    "score": 0.5,
+    "passed": false,
+    "checks_total": 4,
+    "checks_passed": 2,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "json_valid",
+        "passed": false,
+        "message": "Ответ должен быть валидным JSON."
+      },
+      {
+        "check": "json_is_object",
+        "passed": false,
+        "message": "JSON должен быть объектом."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 21, лимит 500."
+      }
+    ]
+  }
+}

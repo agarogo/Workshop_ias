@@ -1,0 +1,93 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "api_design_books_json",
+  "config_name": "balanced_default",
+  "model_name": "qwen3:4b",
+  "input_text": "Верни только JSON-объект с ключами entities, endpoints, risks, notes для небольшого REST API системы библиотеки.",
+  "response_text": "{\n  \"entities\": [\"Book\", \"Reader\", \"Author\"],\n  \"endpoints\": [\"/api/books\", \"/api/readers\", \"/api/authors\", \"/api/books/{id}\", \"/api/readers/{id}\"],\n  \"risks\": [\n    \"Утечка данных при несанкционированном доступе\",\n    \"Перегрузка сервера при большом количестве запросов\",\n    \"Несанкционированный доступ к книге\"\n  ],\n  \"notes\": [\n    \"Эндпоинты требуют аутентификации\",\n    \"Статус книги: в наличии/отсутствие\"\n  ]\n}",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 10478.754600000684,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:api_design_books_json",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.4,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:api_design_books_json",
+    "object": "chat.completion",
+    "created": 1776608744,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"entities\": [\"Book\", \"Reader\", \"Author\"],\n  \"endpoints\": [\"/api/books\", \"/api/readers\", \"/api/authors\", \"/api/books/{id}\", \"/api/readers/{id}\"],\n  \"risks\": [\n    \"Утечка данных при несанкционированном доступе\",\n    \"Перегрузка сервера при большом количестве запросов\",\n    \"Несанкционированный доступ к книге\"\n  ],\n  \"notes\": [\n    \"Эндпоинты требуют аутентификации\",\n    \"Статус книги: в наличии/отсутствие\"\n  ]\n}"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:api_design_books_json",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:balanced_default:api_design_books_json"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 8,
+    "checks_passed": 8,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "json_valid",
+        "passed": true,
+        "message": "Ответ должен быть валидным JSON."
+      },
+      {
+        "check": "json_is_object",
+        "passed": true,
+        "message": "JSON должен быть объектом."
+      },
+      {
+        "check": "must_have_key:entities",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'entities'."
+      },
+      {
+        "check": "must_have_key:endpoints",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'endpoints'."
+      },
+      {
+        "check": "must_have_key:risks",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'risks'."
+      },
+      {
+        "check": "must_have_key:notes",
+        "passed": true,
+        "message": "JSON должен содержать ключ 'notes'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 418, лимит 900."
+      }
+    ]
+  }
+}

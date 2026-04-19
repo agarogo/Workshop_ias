@@ -1,0 +1,83 @@
+{
+  "experiment_run_id": "71f9dc09fa984e929efff9e6a9148825",
+  "test_id": "fib_dp_python",
+  "config_name": "think_enabled",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши на Python функцию fibonacci_dp(n), которая вычисляет n-е число Фибоначчи через динамическое программирование. Без пояснений.",
+  "response_text": "def fibonacci_dp(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a",
+  "score": 0.8333,
+  "passed": false,
+  "latency_ms": 44851.4428999988,
+  "timestamp_utc": "2026-04-19T14:22:09.451883+00:00",
+  "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:fib_dp_python",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.3,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": true
+  },
+  "raw_response": {
+    "id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:fib_dp_python",
+    "object": "chat.completion",
+    "created": 1776609287,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "def fibonacci_dp(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:fib_dp_python",
+    "conversation_id": "71f9dc09fa984e929efff9e6a9148825:think_enabled:fib_dp_python"
+  },
+  "scoring": {
+    "score": 0.8333,
+    "passed": false,
+    "checks_total": 6,
+    "checks_passed": 5,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:def fibonacci_dp",
+        "passed": true,
+        "message": "Ответ должен содержать 'def fibonacci_dp'."
+      },
+      {
+        "check": "contains:return",
+        "passed": true,
+        "message": "Ответ должен содержать 'return'."
+      },
+      {
+        "check": "regex:dp\\s*=\\s*\\[",
+        "passed": false,
+        "message": "Ответ должен соответствовать regex 'dp\\\\s*=\\\\s*\\\\['."
+      },
+      {
+        "check": "regex:for\\s+.*in\\s+range",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'for\\\\s+.*in\\\\s+range'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 96, лимит 900."
+      }
+    ]
+  }
+}

@@ -7,6 +7,7 @@ from starlette.responses import Response
 from opentelemetry import trace
 
 from src.api.endpoints.chat_competitions import router as chat_router
+from src.api.endpoints.experiments import router as experiments_router
 from src.api.endpoints.models import router as models_router
 from src.api.endpoints.metrics import router as metrics_router
 from src.composition import build_components
@@ -59,3 +60,4 @@ app.add_middleware(
 app.include_router(chat_router, prefix="/v1")
 app.include_router(models_router, prefix="/v1")
 app.include_router(metrics_router)
+app.include_router(experiments_router, prefix="/v1")
