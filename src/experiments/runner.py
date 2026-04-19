@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 import time
 import urllib.error
 import urllib.request
@@ -14,21 +15,55 @@ from src.experiments.storage import init_db, save_result
 
 
 CURRENT_FILE = Path(__file__).resolve()
-EXPERIMENTS_DIR = CURRENT_FILE.parent              # .../src/experiments
-SRC_DIR = EXPERIMENTS_DIR.parent                   # .../src
-PROJECT_ROOT = SRC_DIR.parent                      # .../workshop
+EXPERIMENTS_DIR = CURRENT_FILE.parent
+SRC_DIR = EXPERIMENTS_DIR.parent
+PROJECT_ROOT = SRC_DIR.parent
+
+
+def _safe_name(value: str) -> str:
+    value = value.strip()
+    value = re.sub(r'[<>:"/\\\\|?*\\s]+', "_", value)
+    return value[:120] or "unnamed"
+
+
+def save_test_result_json(
+    *,
+    output_dir: Path,
+    experiment_run_id: str,
+    config_name: str,
+    test_id: str,
+    row: Dict[str, Any],
+) -> None:
+    config_dir = output_dir / experiment_run_id / _safe_name(config_name)
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    test_file = config_dir / f"{_safe_name(test_id)}.json"
+
+    test_payload = {
+        "experiment_run_id": row["experiment_run_id"],
+        "test_id": row["test_id"],
+        "config_name": row["config_name"],
+        "input_text": row["input_text"],
+        "response_text": row["response_text"],
+        "score": row["score"],
+        "passed": row["passed"],
+        "latency_ms": row["latency_ms"],
+        "timestamp_utc": row["timestamp_utc"],
+        "thread_id": row.get("thread_id"),
+        "trace_id": row.get("trace_id"),
+        "runtime_params": row.get("runtime_params", {}),
+        "raw_response": row.get("raw_response", {}),
+        "scoring": row.get("scoring", {}),
+    }
+
+    test_file.write_text(
+        json.dumps(test_payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 def resolve_path(path_str: str, *, expect_dir: bool = False) -> Path:
-    """
-    Умеет искать путь в нескольких вариантах:
-    1) как есть
-    2) относительно корня проекта
-    3) относительно src/
-    4) относительно src/experiments/
-    """
     raw = Path(path_str)
-
     candidates = []
 
     if raw.is_absolute():
@@ -45,10 +80,10 @@ def resolve_path(path_str: str, *, expect_dir: bool = False) -> Path:
         if not expect_dir and candidate.is_file():
             return candidate
 
-    checked = "\n".join(f"- {str(c)}" for c in candidates)
+    checked = "\\n".join(f"- {str(c)}" for c in candidates)
     kind = "directory" if expect_dir else "file"
     raise FileNotFoundError(
-        f"Could not find {kind}: {path_str}\nChecked:\n{checked}"
+        f"Could not find {kind}: {path_str}\\nChecked:\\n{checked}"
     )
 
 
@@ -59,8 +94,8 @@ def load_dataset(dataset_path: str | Path) -> List[Dict[str, Any]]:
 
 def load_configs(configs_dir: str | Path) -> List[Dict[str, Any]]:
     configs_path = resolve_path(str(configs_dir), expect_dir=True)
-
     configs: List[Dict[str, Any]] = []
+
     for file_path in sorted(configs_path.glob("*.json")):
         configs.append(json.loads(file_path.read_text(encoding="utf-8")))
 
@@ -78,7 +113,6 @@ def _extract_response_text(response_json: Dict[str, Any]) -> str:
     first = choices[0] or {}
     message = first.get("message") or {}
     content = message.get("content")
-
     return content if isinstance(content, str) else ""
 
 
@@ -180,7 +214,6 @@ def run_experiment(
     output.mkdir(parents=True, exist_ok=True)
 
     conn = init_db(db_file)
-
     results: List[Dict[str, Any]] = []
 
     for config in configs:
@@ -224,6 +257,14 @@ def run_experiment(
             save_result(conn, row)
             results.append(row)
 
+            save_test_result_json(
+                output_dir=output,
+                experiment_run_id=experiment_run_id,
+                config_name=config_name,
+                test_id=test_id,
+                row=row,
+            )
+
             print(
                 f"[{config_name}] {test_id}: "
                 f"passed={row['passed']} score={row['score']:.4f} "
@@ -232,50 +273,18 @@ def run_experiment(
 
     write_csv(results, output / "results.csv")
     write_summary(results, output / "summary.md")
-
     return results
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run parameter experiments for workshop.")
-
-    parser.add_argument(
-        "--dataset",
-        default="src/experiments/datasets/basic.json",
-        help="Path to dataset JSON file.",
-    )
-    parser.add_argument(
-        "--configs",
-        default="src/experiments/configs",
-        help="Path to directory with config JSON files.",
-    )
-    parser.add_argument(
-        "--base-url",
-        default="http://localhost:8000",
-        help="Workshop base URL.",
-    )
-    parser.add_argument(
-        "--model",
-        default=None,
-        help="Default model name.",
-    )
-    parser.add_argument(
-        "--db-path",
-        default="src/experiments/results/results.sqlite3",
-        help="SQLite output path.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        default="src/experiments/results",
-        help="Directory for reports.",
-    )
-    parser.add_argument(
-        "--timeout-seconds",
-        type=int,
-        default=120,
-        help="HTTP timeout.",
-    )
-
+    parser.add_argument("--dataset", default="src/experiments/datasets/basic.json", help="Path to dataset JSON file.")
+    parser.add_argument("--configs", default="src/experiments/configs", help="Path to directory with config JSON files.")
+    parser.add_argument("--base-url", default="http://localhost:8000", help="Workshop base URL.")
+    parser.add_argument("--model", default=None, help="Default model name.")
+    parser.add_argument("--db-path", default="src/experiments/results/results.sqlite3", help="SQLite output path.")
+    parser.add_argument("--output-dir", default="src/experiments/results", help="Directory for reports.")
+    parser.add_argument("--timeout-seconds", type=int, default=120, help="HTTP timeout.")
     return parser
 
 
