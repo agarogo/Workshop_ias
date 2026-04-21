@@ -1,4 +1,5 @@
 import json
+import re
 import uuid
 import urllib.request
 from pathlib import Path
@@ -16,8 +17,8 @@ from src.api.experiment_schemas import (
     ExperimentRunInfo,
     ExperimentRunRequest,
     ExperimentRunResponse,
-    TestCaseCreateRequest,
-    TestCaseUpdateRequest,
+    TestCaseCreate,
+    TestCaseUpdate,
 )
 from src.config import settings
 from src.experiments.runner import PROJECT_ROOT, run_experiment
@@ -25,6 +26,12 @@ from src.experiments.runner import PROJECT_ROOT, run_experiment
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
 JOB_STORE: Dict[str, Dict[str, Any]] = {}
+
+
+def _safe_name(value: str) -> str:
+    value = value.strip()
+    value = re.sub(r'[<>:"/\\|?*\s]+', "_", value)
+    return value[:120] or "unnamed"
 
 
 def experiments_results_root() -> Path:
@@ -39,6 +46,10 @@ def configs_root() -> Path:
     return PROJECT_ROOT / "src/experiments/configs"
 
 
+def tests_root() -> Path:
+    return PROJECT_ROOT / "src/experiments/tests"
+
+
 def dataset_file_path(dataset: str) -> Path:
     raw = Path(dataset)
     if raw.is_absolute():
@@ -49,8 +60,11 @@ def dataset_file_path(dataset: str) -> Path:
 
 
 def config_file_path(config_name: str) -> Path:
-    safe_name = config_name if config_name.endswith(".json") else f"{config_name}.json"
-    return configs_root() / safe_name
+    return configs_root() / f"{_safe_name(config_name)}.json"
+
+
+def test_file_path(test_id: str) -> Path:
+    return tests_root() / f"{_safe_name(test_id)}.json"
 
 
 def list_dataset_files() -> List[str]:
@@ -62,6 +76,13 @@ def list_dataset_files() -> List[str]:
 
 def list_config_files() -> List[str]:
     root = configs_root()
+    if not root.exists():
+        return []
+    return sorted(p.stem for p in root.glob("*.json"))
+
+
+def list_test_files() -> List[str]:
+    root = tests_root()
     if not root.exists():
         return []
     return sorted(p.stem for p in root.glob("*.json"))
@@ -85,6 +106,17 @@ def list_ollama_models() -> List[str]:
         return []
 
 
+def load_json_file(path: Path, *, not_found_message: str) -> Dict[str, Any]:
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=not_found_message)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_json_file(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def load_dataset_cases(dataset: str) -> List[Dict[str, Any]]:
     path = dataset_file_path(dataset)
     if not path.exists():
@@ -98,17 +130,34 @@ def save_dataset_cases(dataset: str, cases: List[Dict[str, Any]]) -> None:
     path.write_text(json.dumps(cases, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def load_config_payload(config_name: str) -> Dict[str, Any]:
-    path = config_file_path(config_name)
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Config not found: {config_name}")
-    return json.loads(path.read_text(encoding="utf-8"))
+def sync_test_to_dataset(dataset: str, case_payload: Dict[str, Any]) -> None:
+    """Сохраняет тест и в отдельный JSON, и в dataset, чтобы не ломать старую логику runner."""
+    try:
+        cases = load_dataset_cases(dataset)
+    except HTTPException:
+        cases = []
+
+    updated = False
+    for idx, case in enumerate(cases):
+        if case.get("id") == case_payload.get("id"):
+            cases[idx] = case_payload
+            updated = True
+            break
+
+    if not updated:
+        cases.append(case_payload)
+
+    save_dataset_cases(dataset, cases)
 
 
-def save_config_payload(config_name: str, payload: Dict[str, Any]) -> None:
-    path = config_file_path(config_name)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+def remove_test_from_dataset(dataset: str, test_id: str) -> None:
+    try:
+        cases = load_dataset_cases(dataset)
+    except HTTPException:
+        return
+
+    filtered = [case for case in cases if case.get("id") != test_id]
+    save_dataset_cases(dataset, filtered)
 
 
 def _run_job(job_id: str, body: ExperimentRunRequest) -> None:
@@ -137,6 +186,7 @@ def _run_job(job_id: str, body: ExperimentRunRequest) -> None:
         JOB_STORE[job_id]["status"] = "completed"
         JOB_STORE[job_id]["experiment_run_id"] = result["experiment_run_id"]
         JOB_STORE[job_id]["result"] = result
+
     except Exception as e:
         JOB_STORE[job_id]["status"] = "failed"
         JOB_STORE[job_id]["error"] = f"{e.__class__.__name__}: {e}"
@@ -147,21 +197,30 @@ async def get_experiment_catalog():
     return ExperimentCatalogResponse(
         datasets=list_dataset_files(),
         configs=list_config_files(),
+        tests=list_test_files(),
         models=list_ollama_models(),
     )
 
 
+# CONFIGS CRUD
+
 @router.get("/configs")
 async def get_configs():
+    root = configs_root()
+    if not root.exists():
+        return []
+
     result = []
-    for name in list_config_files():
-        result.append(load_config_payload(name))
+    for path in sorted(root.glob("*.json")):
+        result.append(json.loads(path.read_text(encoding="utf-8")))
     return result
 
 
 @router.get("/configs/{config_name}")
 async def get_config(config_name: str):
-    return JSONResponse(content=load_config_payload(config_name))
+    path = config_file_path(config_name)
+    payload = load_json_file(path, not_found_message=f"Config not found: {config_name}")
+    return JSONResponse(content=payload)
 
 
 @router.post("/configs")
@@ -171,13 +230,14 @@ async def create_config(body: ConfigProfileCreate):
         raise HTTPException(status_code=409, detail=f"Config already exists: {body.name}")
 
     payload = body.model_dump(exclude_none=True)
-    save_config_payload(body.name, payload)
+    save_json_file(path, payload)
     return JSONResponse(content=payload)
 
 
 @router.put("/configs/{config_name}")
 async def update_config(config_name: str, body: ConfigProfileUpdate):
-    payload = load_config_payload(config_name)
+    path = config_file_path(config_name)
+    payload = load_json_file(path, not_found_message=f"Config not found: {config_name}")
 
     if body.model is not None:
         payload["model"] = body.model
@@ -186,7 +246,7 @@ async def update_config(config_name: str, body: ConfigProfileUpdate):
     if body.description is not None:
         payload["description"] = body.description
 
-    save_config_payload(config_name, payload)
+    save_json_file(path, payload)
     return JSONResponse(content=payload)
 
 
@@ -200,68 +260,68 @@ async def delete_config(config_name: str):
     return {"deleted": True, "config_name": config_name}
 
 
+# TESTS CRUD
+
 @router.get("/tests")
-async def get_tests(dataset: str = "src/experiments/datasets/basic.json"):
-    return JSONResponse(content=load_dataset_cases(dataset))
+async def get_tests():
+    root = tests_root()
+    if not root.exists():
+        return []
+
+    result = []
+    for path in sorted(root.glob("*.json")):
+        result.append(json.loads(path.read_text(encoding="utf-8")))
+    return result
 
 
 @router.get("/tests/{test_id}")
-async def get_test(test_id: str, dataset: str = "src/experiments/datasets/basic.json"):
-    cases = load_dataset_cases(dataset)
-    for case in cases:
-        if case.get("id") == test_id:
-            return JSONResponse(content=case)
-    raise HTTPException(status_code=404, detail=f"Test not found: {test_id}")
+async def get_test(test_id: str):
+    path = test_file_path(test_id)
+    payload = load_json_file(path, not_found_message=f"Test not found: {test_id}")
+    return JSONResponse(content=payload)
 
 
 @router.post("/tests")
-async def create_test(body: TestCaseCreateRequest):
-    cases = load_dataset_cases(body.dataset)
+async def create_test(body: TestCaseCreate, dataset: str = "src/experiments/datasets/basic.json"):
+    path = test_file_path(body.id)
+    if path.exists():
+        raise HTTPException(status_code=409, detail=f"Test already exists: {body.id}")
 
-    if any(case.get("id") == body.case.id for case in cases):
-        raise HTTPException(status_code=409, detail=f"Test already exists: {body.case.id}")
-
-    new_case = body.case.model_dump()
-    cases.append(new_case)
-    save_dataset_cases(body.dataset, cases)
-
-    return JSONResponse(content=new_case)
+    payload = body.model_dump()
+    save_json_file(path, payload)
+    sync_test_to_dataset(dataset, payload)
+    return JSONResponse(content=payload)
 
 
 @router.put("/tests/{test_id}")
-async def update_test(test_id: str, body: TestCaseUpdateRequest):
-    cases = load_dataset_cases(body.dataset)
+async def update_test(test_id: str, body: TestCaseUpdate, dataset: str = "src/experiments/datasets/basic.json"):
+    path = test_file_path(test_id)
+    payload = load_json_file(path, not_found_message=f"Test not found: {test_id}")
 
-    updated_case = None
-    for case in cases:
-        if case.get("id") == test_id:
-            if body.input is not None:
-                case["input"] = body.input
-            if body.checks is not None:
-                case["checks"] = body.checks
-            if body.tags is not None:
-                case["tags"] = body.tags
-            updated_case = case
-            break
+    if body.input is not None:
+        payload["input"] = body.input
+    if body.checks is not None:
+        payload["checks"] = body.checks
+    if body.tags is not None:
+        payload["tags"] = body.tags
 
-    if updated_case is None:
-        raise HTTPException(status_code=404, detail=f"Test not found: {test_id}")
-
-    save_dataset_cases(body.dataset, cases)
-    return JSONResponse(content=updated_case)
+    save_json_file(path, payload)
+    sync_test_to_dataset(dataset, payload)
+    return JSONResponse(content=payload)
 
 
 @router.delete("/tests/{test_id}")
 async def delete_test(test_id: str, dataset: str = "src/experiments/datasets/basic.json"):
-    cases = load_dataset_cases(dataset)
-    filtered = [case for case in cases if case.get("id") != test_id]
-
-    if len(filtered) == len(cases):
+    path = test_file_path(test_id)
+    if not path.exists():
         raise HTTPException(status_code=404, detail=f"Test not found: {test_id}")
 
-    save_dataset_cases(dataset, filtered)
-    return {"deleted": True, "test_id": test_id, "dataset": dataset}
+    path.unlink()
+    remove_test_from_dataset(dataset, test_id)
+    return {"deleted": True, "test_id": test_id}
 
+
+# RUN / RESULTS
 
 @router.post("/run", response_model=ExperimentRunResponse)
 async def start_experiment_run(body: ExperimentRunRequest, background_tasks: BackgroundTasks):
@@ -326,35 +386,6 @@ async def get_run_detail(run_id: str):
         manifest=manifest,
         configs=configs,
     )
-
-
-@router.get("/runs/{run_id}/bundle")
-async def get_run_bundle(run_id: str):
-    run_dir = experiments_results_root() / run_id
-    if not run_dir.exists() or not run_dir.is_dir():
-        raise HTTPException(status_code=404, detail="Run not found")
-
-    manifest_path = run_dir / "run.json"
-    manifest: Dict[str, Any] = {}
-    if manifest_path.exists():
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-
-    bundle: Dict[str, Any] = {
-        "run_id": run_id,
-        "manifest": manifest,
-        "configs": {},
-    }
-
-    for config_dir in sorted(run_dir.iterdir()):
-        if config_dir.is_dir():
-            config_payloads = []
-            for json_file in sorted(config_dir.glob("*.json")):
-                config_payloads.append(
-                    json.loads(json_file.read_text(encoding="utf-8"))
-                )
-            bundle["configs"][config_dir.name] = config_payloads
-
-    return JSONResponse(content=bundle)
 
 
 @router.get("/runs/{run_id}/files/{config_name}/{file_name}")

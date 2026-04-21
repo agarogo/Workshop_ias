@@ -7,6 +7,7 @@ class ExperimentRunRequest(BaseModel):
     dataset: str = Field(default="src/experiments/datasets/basic.json")
     configs_dir: str = Field(default="src/experiments/configs")
     selected_config_names: Optional[List[str]] = None
+    selected_test_ids: Optional[List[str]] = None
     selected_models: Optional[List[str]] = None
     use_all_models: bool = False
     default_model: Optional[str] = None
