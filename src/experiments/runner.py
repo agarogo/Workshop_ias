@@ -1,4 +1,3 @@
-# src/experiments/runner.py
 import argparse
 import json
 import re
@@ -66,6 +65,22 @@ def load_configs(configs_dir: str | Path) -> List[Dict[str, Any]]:
         raise FileNotFoundError(f"No config JSON files found in: {configs_path}")
 
     return configs
+
+
+def filter_dataset(
+    dataset: List[Dict[str, Any]],
+    selected_test_ids: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
+    if not selected_test_ids:
+        return dataset
+
+    wanted = set(selected_test_ids)
+    filtered = [case for case in dataset if case.get("id") in wanted]
+
+    if not filtered:
+        raise ValueError(f"No tests matched selected_test_ids={selected_test_ids}")
+
+    return filtered
 
 
 def _extract_response_text(response_json: Dict[str, Any]) -> str:
@@ -158,17 +173,16 @@ def call_chat_completion(
 
 def save_test_result_json(
     *,
-    output_dir: Path,
-    experiment_run_id: str,
+    run_dir: Path,
     config_name: str,
     test_id: str,
     row: Dict[str, Any],
 ) -> None:
-    config_dir = output_dir / experiment_run_id / _safe_name(config_name)
+    config_dir = run_dir / _safe_name(config_name)
     config_dir.mkdir(parents=True, exist_ok=True)
 
     test_file = config_dir / f"{_safe_name(test_id)}.json"
-    test_payload = {
+    payload = {
         "experiment_run_id": row["experiment_run_id"],
         "test_id": row["test_id"],
         "config_name": row["config_name"],
@@ -187,27 +201,26 @@ def save_test_result_json(
     }
 
     test_file.write_text(
-        json.dumps(test_payload, ensure_ascii=False, indent=2),
+        json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
 
 def save_run_manifest(
     *,
-    output_dir: Path,
+    run_dir: Path,
     experiment_run_id: str,
     dataset_path: str,
     selected_configs: List[str],
+    selected_tests: List[str],
     selected_models: List[str],
     total_jobs: int,
 ) -> None:
-    run_dir = output_dir / experiment_run_id
-    run_dir.mkdir(parents=True, exist_ok=True)
-
     manifest = {
         "experiment_run_id": experiment_run_id,
         "dataset_path": dataset_path,
         "selected_configs": selected_configs,
+        "selected_tests": selected_tests,
         "selected_models": selected_models,
         "total_jobs": total_jobs,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -227,14 +240,19 @@ def prepare_matrix(
     selected_models: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     config_name_set = set(selected_config_names or [])
+
     filtered_configs = [
         cfg for cfg in configs
         if not config_name_set or cfg["name"] in config_name_set
     ]
 
+    if not filtered_configs:
+        raise ValueError("No configs matched selected_config_names")
+
     models = [m for m in (selected_models or []) if m]
 
     matrix: List[Dict[str, Any]] = []
+
     if models:
         for cfg in filtered_configs:
             for model_name in models:
@@ -270,17 +288,22 @@ def run_experiment(
     output_dir: str,
     timeout_seconds: int,
     selected_config_names: Optional[List[str]] = None,
+    selected_test_ids: Optional[List[str]] = None,
     selected_models: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     dataset = load_dataset(dataset_path)
+    dataset = filter_dataset(dataset, selected_test_ids=selected_test_ids)
     configs = load_configs(configs_dir)
 
     experiment_run_id = uuid.uuid4().hex
     timestamp_utc = datetime.now(timezone.utc).isoformat()
 
     db_file = PROJECT_ROOT / db_path if not Path(db_path).is_absolute() else Path(db_path)
-    output = PROJECT_ROOT / output_dir if not Path(output_dir).is_absolute() else Path(output_dir)
-    output.mkdir(parents=True, exist_ok=True)
+    output_root = PROJECT_ROOT / output_dir if not Path(output_dir).is_absolute() else Path(output_dir)
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    run_dir = output_root / experiment_run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
 
     matrix = prepare_matrix(
         configs=configs,
@@ -293,10 +316,11 @@ def run_experiment(
     results: List[Dict[str, Any]] = []
 
     save_run_manifest(
-        output_dir=output,
+        run_dir=run_dir,
         experiment_run_id=experiment_run_id,
         dataset_path=dataset_path,
         selected_configs=[item["base_config_name"] for item in matrix],
+        selected_tests=[case["id"] for case in dataset],
         selected_models=[item["model"] for item in matrix if item.get("model")],
         total_jobs=len(matrix) * len(dataset),
     )
@@ -344,8 +368,7 @@ def run_experiment(
             results.append(row)
 
             save_test_result_json(
-                output_dir=output,
-                experiment_run_id=experiment_run_id,
+                run_dir=run_dir,
                 config_name=config_name,
                 test_id=test_id,
                 row=row,
@@ -357,13 +380,13 @@ def run_experiment(
                 f"latency={row['latency_ms']:.2f}ms"
             )
 
-    write_csv(results, output / "results.csv")
-    write_summary(results, output / "summary.md")
+    write_csv(results, run_dir / "results.csv")
+    write_summary(results, run_dir / "summary.md")
 
     return {
         "experiment_run_id": experiment_run_id,
         "results_count": len(results),
-        "output_dir": str(output / experiment_run_id),
+        "output_dir": str(run_dir),
     }
 
 

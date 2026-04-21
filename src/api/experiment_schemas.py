@@ -1,5 +1,5 @@
-# src/api/experiment_schemas.py
 from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -31,6 +31,7 @@ class ExperimentJobStatus(BaseModel):
 class ExperimentCatalogResponse(BaseModel):
     datasets: List[str]
     configs: List[str]
+    tests: List[str]
     models: List[str]
 
 
@@ -43,3 +44,29 @@ class ExperimentRunDetail(BaseModel):
     run_id: str
     manifest: Dict[str, Any]
     configs: Dict[str, List[str]]
+
+
+class ConfigProfileCreate(BaseModel):
+    name: str
+    model: Optional[str] = None
+    runtime_params: Dict[str, Any] = Field(default_factory=dict)
+    description: Optional[str] = None
+
+
+class ConfigProfileUpdate(BaseModel):
+    model: Optional[str] = None
+    runtime_params: Optional[Dict[str, Any]] = None
+    description: Optional[str] = None
+
+
+class TestCaseCreate(BaseModel):
+    id: str
+    input: str
+    checks: Dict[str, Any] = Field(default_factory=dict)
+    tags: List[str] = Field(default_factory=list)
+
+
+class TestCaseUpdate(BaseModel):
+    input: Optional[str] = None
+    checks: Optional[Dict[str, Any]] = None
+    tags: Optional[List[str]] = None
