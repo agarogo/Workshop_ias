@@ -1,0 +1,83 @@
+{
+  "experiment_run_id": "5d26886b4b0f444a9b24c681bcd67b33",
+  "test_id": "fib_recursive_python",
+  "config_name": "balanced_default__qwen3_4b",
+  "model_name": "qwen3:4b",
+  "input_text": "Напиши на Python функцию fibonacci_recursive(n), которая вычисляет n-е число Фибоначчи через чистую рекурсию. Без пояснений.",
+  "response_text": "def fibonacci_recursive(n):\n    if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)",
+  "score": 1.0,
+  "passed": true,
+  "latency_ms": 12842.333215999986,
+  "timestamp_utc": "2026-04-22T00:22:35.599670+00:00",
+  "thread_id": "5d26886b4b0f444a9b24c681bcd67b33:balanced_default__qwen3_4b:fib_recursive_python",
+  "trace_id": null,
+  "runtime_params": {
+    "temperature": 0.4,
+    "top_p": 0.9,
+    "top_k": 40,
+    "num_predict": 256,
+    "seed": 42,
+    "think": false
+  },
+  "raw_response": {
+    "id": "5d26886b4b0f444a9b24c681bcd67b33:balanced_default__qwen3_4b:fib_recursive_python",
+    "object": "chat.completion",
+    "created": 1776817368,
+    "model": "qwen3:4b",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "def fibonacci_recursive(n):\n    if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "thread_id": "5d26886b4b0f444a9b24c681bcd67b33:balanced_default__qwen3_4b:fib_recursive_python",
+    "conversation_id": "5d26886b4b0f444a9b24c681bcd67b33:balanced_default__qwen3_4b:fib_recursive_python"
+  },
+  "scoring": {
+    "score": 1.0,
+    "passed": true,
+    "checks_total": 6,
+    "checks_passed": 6,
+    "details": [
+      {
+        "check": "response_not_empty",
+        "passed": true,
+        "message": "Ответ не должен быть пустым."
+      },
+      {
+        "check": "contains:def fibonacci_recursive",
+        "passed": true,
+        "message": "Ответ должен содержать 'def fibonacci_recursive'."
+      },
+      {
+        "check": "contains:return",
+        "passed": true,
+        "message": "Ответ должен содержать 'return'."
+      },
+      {
+        "check": "regex:fibonacci_recursive\\(n\\s*-\\s*1\\)",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'fibonacci_recursive\\\\(n\\\\s*-\\\\s*1\\\\)'."
+      },
+      {
+        "check": "regex:fibonacci_recursive\\(n\\s*-\\s*2\\)",
+        "passed": true,
+        "message": "Ответ должен соответствовать regex 'fibonacci_recursive\\\\(n\\\\s*-\\\\s*2\\\\)'."
+      },
+      {
+        "check": "max_length",
+        "passed": true,
+        "message": "Длина ответа 170, лимит 700."
+      }
+    ]
+  }
+}
