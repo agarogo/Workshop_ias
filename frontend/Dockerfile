@@ -11,4 +11,4 @@ ENV EXPERIMENTS_BACKEND_URL=http://backend:8100
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 EXPOSE 3000
-CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]
+CMD ["node", "scripts/dev.mjs", "--hostname", "0.0.0.0", "--port", "3000"]
