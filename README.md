@@ -1,87 +1,200 @@
-## Одноузловой оркестратор предоставляет упрощенную среду для:
+# Workshop IAS + BenchFile
 
-- **Экспериментирования**: Настройка параметров LLM без сложностей, связанных с многоузловой архитектурой
-- **Промпт-инженерия**: Тестирование разных промптов
-- **Тестирования производительности**: Бенчмарк различных моделей и конфигураций
-- **Быстрого прототипирования**: Тестирование новых функций перед интеграцией в основной проект
+Репозиторий теперь собран как fullstack-приложение:
 
-Инфраструктура (API, observability, LLM factory)  остается почти неизменной, что упрощает перенос успешных экспериментов в основной оркестратор.
+- `frontend/` — активный Next.js фронт с доской экспериментов.
+- `backend/` — новый backend BenchFile/BenchMerge для хранения конфигов, тестов, suites, lineage и результатов прогонов.
+- Старый workshop-orchestrator backend больше не используется в запуске проекта.
 
-## Визуализация графа 
-<img src="docs/graph.png" width="150" alt="Граф workflow">
+## Архитектура
+
+```text
+frontend Next.js
+  -> /api/experiments/* Next proxy adapter
+  -> backend BenchFile API
+  -> storage/*.json
+  -> PromptBench batch stream, если запускаются реальные прогоны
+```
+
+Фронт оставлен на старом удобном контракте `/api/experiments/*`, а Next.js proxy внутри `frontend/src/app/api/experiments/[...path]/route.ts` адаптирует его к новому API BenchFile.
 
 ## Структура проекта
 
-### Entrypoint (main.py)
+```text
+.
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── routers/
+│   │   │   └── schemas/
+│   │   ├── core/
+│   │   ├── services/
+│   │   └── storage/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── .env.example
+└── docker-compose.yml
+```
 
-- **Запуск FastAPI и инициализация зависимостей (tracing, workflow, mcp_client).**
+## Быстрый запуск через Docker Compose
 
-### Валидация конфигураций (config.py)
-- **Валидация осуществляется с помощью `pydantic_settings`.**
-
-### Сборка приложения (composition.py)
-- **Composition root: собирает `MCPClient`, фабрику LLM, catalog tools и компилирует LangGraph workflow.**
-
-### Слой API (/api)
-- **Эндпоинты, DI, pydantic схемы и формирование ответов.**
-
-### Слой бизнес-логики (/application)
-- **Вспомогательные инструменты узлов, MCP.**
-
-### Доменная логика (/domain)
-- **Чистые правила диалога и контракт состояния:**
-- идентификаторы/инициализация диалога,
-- преобразование OpenAI сообщений в LangChain messages
-- вспомогательные правила извлечения результата.
-
-### Слой графа LangGraph (/graph)
-- **Сборка графа и логика узлов (Prepare/Assistant/Executor/Coder/Validator).**
-
-### Слой инфраструктуры (/infrastructure)
-- **Интеграции с внешним миром: MCP client, фабрика LLM, адаптеры tooling, наблюдаемость.**
-
-#### Наблюдаемость
-- **Phoenix + OpenTelemetry реализованы в `infrastructure/observability`.**
-
-
-## Стек технологий
-- Python 3.12
-- FastAPI
-- Pydantic[pydantic_settings]
-- Uvicorn
-- LangGraph
-- LangChain
-- Aiohttp
-- Arize Phoenix + OpenTelemetry
-
-
-## Узел Prepare Node не включен в workshop:
-1. Назначение узла подготовки — загрузка и распространение инструментов MCP на различные узлы.
-2. Одноузловая версия не использует серверы MCP.
-3. В одноузловой архитектуре нет необходимости в распространении инструментов.
-
-Если нужно добавить инструменты, вы сможете загрузить их непосредственно в application слой.
-
-## Как добавлять новые параметры:
-- Создать переменные новых параметров в .env, config.py
-- Добавить в тело функции **get_llm** значения из config.py
-- Добавить в принимаемые параметры **_create_llm_instance**
-
-#### (Параметры и назначения описаны в [params.md](docs/params.md))
-
-## Предварительная настройка: 
-- Создать .env (скопировать содержимое с .env.example)
-- в .env переопределить адрес OLLAMA_BASE_URL на локально поднятую ollama/доступную модель в сети OpenVPN(в будущем)
-- В .env в LLM_MODEL вставить имя поднятой модели
-
-## Команда для запуска и сборки зависимостей:
-```shell
+```bash
 docker compose up --build
 ```
 
-## Сервисы будут доступны по следующим адресам:
-```asciidoc
-OpenWebUI - http://localhost:8080/
-Orchestrator swagger docs - http://localhost:8000/docs/
-Phoenix UI - http://localhost:6006/
+После запуска:
+
+```text
+Frontend: http://localhost:3000
+Backend Swagger: http://localhost:8100/docs
+Backend health: http://localhost:8100/health
 ```
+
+## Локальный запуск без Docker
+
+### 1. Backend
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8100
+```
+
+На macOS/Linux активация venv:
+
+```bash
+source .venv/bin/activate
+```
+
+### 2. Frontend
+
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Фронт будет доступен на `http://localhost:3000`.
+
+## ENV
+
+### Backend
+
+Backend читает переменные с префиксом `BENCHFILE_`:
+
+```env
+BENCHFILE_PROMPTBENCH_BASE_URL=http://localhost:8020
+BENCHFILE_DEFAULT_MODEL=gemma3:4b
+BENCHFILE_REQUEST_TIMEOUT_SECONDS=300
+BENCHFILE_STORAGE_ROOT=storage
+```
+
+В Docker Compose используется volume `benchfile-storage`, поэтому JSON-хранилище не теряется после перезапуска контейнеров.
+
+### Frontend
+
+```env
+NEXT_PUBLIC_EXPERIMENTS_API_URL=/api/experiments
+EXPERIMENTS_BACKEND_URL=http://localhost:8100
+```
+
+В Docker Compose `EXPERIMENTS_BACKEND_URL` автоматически ставится как `http://backend:8100`.
+
+## Основные backend endpoint'ы
+
+### Health
+
+```http
+GET /health
+```
+
+### Configs
+
+```http
+GET /configs
+GET /configs/{config_id}
+POST /configs
+PUT /configs/{config_id}
+GET /configs/{config_id}/lineage
+POST /configs/{config_id}/offspring
+```
+
+### Tests
+
+```http
+GET /tests
+GET /tests/{test_id}
+POST /tests
+PUT /tests/{test_id}
+DELETE /tests/{test_id}
+```
+
+### Suites
+
+```http
+GET /suites
+GET /suites/{suite_id}
+POST /suites
+PUT /suites/{suite_id}
+DELETE /suites/{suite_id}
+```
+
+### Runs
+
+```http
+GET /runs
+POST /runs
+GET /runs/{run_id}
+POST /runs/select-best
+```
+
+### Files
+
+```http
+GET /files/tree
+GET /files/json?path=views/configs_list.json
+```
+
+## Минимальные тестовые данные
+
+Создать конфиг:
+
+```bash
+curl -X POST http://localhost:8100/configs ^
+  -H "Content-Type: application/json" ^
+  -d "{\"config_id\":\"cfg_0001\",\"name\":\"strict_gemma\",\"model\":\"gemma3:4b\",\"system_prompt\":\"Ты эксперт по Python.\",\"options\":{\"temperature\":0.2,\"top_k\":20,\"top_p\":0.9}}"
+```
+
+Создать тест:
+
+```bash
+curl -X POST http://localhost:8100/tests ^
+  -H "Content-Type: application/json" ^
+  -d "{\"test_id\":\"test_palindrome\",\"name\":\"Palindrome Python\",\"user_prompt\":\"Напиши функцию проверки палиндрома на Python\",\"checks\":{\"response_not_empty\":true,\"contains\":[\"def\",\"return\"]},\"tags\":[\"python\",\"algorithm\"]}"
+```
+
+Для PowerShell лучше использовать `Invoke-RestMethod` или одинарные кавычки вокруг JSON.
+
+## Как фронт связан с backend
+
+Фронт вызывает `experimentsApi` из `frontend/src/lib/api.ts`. По умолчанию он ходит в `/api/experiments`, а Next.js route-handler адаптирует запросы к BenchFile API:
+
+```text
+/api/experiments/catalog -> GET /configs + GET /tests
+/api/experiments/tests -> GET/POST /tests
+/api/experiments/runs -> GET /runs
+/api/experiments/runs/{run_id} -> GET /runs/{run_id}
+/api/experiments/run -> POST /runs
+/api/experiments/files/* -> /files/*
+```
+
+## Примечание про старый backend
+
+Старый LangGraph/workshop backend не участвует в `docker-compose.yml`. Новый активный backend находится только в `backend/`.
