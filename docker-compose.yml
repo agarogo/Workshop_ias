@@ -1,51 +1,34 @@
 services:
-  workshop:
-    build: .
+  backend:
+    build:
+      context: ./backend
     ports:
-      - "8000:8000"
+      - "8100:8100"
     environment:
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://10.129.0.56:11434}
-      PHOENIX_COLLECTOR_ENDPOINT: ${PHOENIX_COLLECTOR_ENDPOINT:-http://phoenix:4317}
-      PHOENIX_PROJECT_NAME: ${PHOENIX_PROJECT_NAME:-workshop}
-      LLM_MODEL: ${LLM_MODEL:-qwen3:14b}
-      LLM_TEMPERATURE: ${LLM_TEMPERATURE:-0.1}
-      LLM_NUM_CTX: ${LLM_NUM_CTX:-8192}
-      RECURSION_LIMIT: ${RECURSION_LIMIT:-80}
-
+      BENCHFILE_PROMPTBENCH_BASE_URL: ${BENCHFILE_PROMPTBENCH_BASE_URL:-http://host.docker.internal:8020}
+      BENCHFILE_DEFAULT_MODEL: ${BENCHFILE_DEFAULT_MODEL:-gemma3:4b}
+      BENCHFILE_REQUEST_TIMEOUT_SECONDS: ${BENCHFILE_REQUEST_TIMEOUT_SECONDS:-300}
+      BENCHFILE_STORAGE_ROOT: ${BENCHFILE_STORAGE_ROOT:-/app/storage}
+    volumes:
+      - benchfile-storage:/app/storage
     networks:
       - workshop-net
 
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:v0.8.5
+  frontend:
+    build:
+      context: ./frontend
     ports:
-      - "8080:8080"
+      - "3000:3000"
     environment:
-      - OPENAI_API_BASE_URL=http://workshop:8000/v1
-      - OPENAI_API_KEY=workshop
-      - ENABLE_PERSISTENT_CONFIG=false
+      NEXT_PUBLIC_EXPERIMENTS_API_URL: /api/experiments
+      EXPERIMENTS_BACKEND_URL: http://backend:8100
     depends_on:
-      - workshop
-    volumes:
-      - open-webui-data:/app/backend/data
-    networks:
-      - workshop-net
-
-
-  phoenix:
-    image: arizephoenix/phoenix:version-8.0.0
-    ports:
-      - "6006:6006"
-      - "4317:4317"
-    environment:
-      - PHOENIX_WORKING_DIR=/data
-    volumes:
-      - phoenix-data:/data
+      - backend
     networks:
       - workshop-net
 
 volumes:
-  open-webui-data:
-  phoenix-data:
+  benchfile-storage:
 
 networks:
   workshop-net:
