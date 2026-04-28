@@ -1,282 +1,169 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { spawn } from 'node:child_process'
-import { randomUUID } from 'node:crypto'
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  unlinkSync,
-  writeFileSync,
-} from 'node:fs'
-import { dirname, join, relative } from 'node:path'
 
 type RouteContext = {
   params: Promise<{ path?: string[] }>
 }
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
-const PROJECT_ROOT = join(process.cwd(), '..')
-const RESULTS_ROOT = join(PROJECT_ROOT, 'src', 'experiments', 'results')
-const DATASETS_ROOT = join(PROJECT_ROOT, 'src', 'experiments', 'datasets')
-const CONFIGS_ROOT = join(PROJECT_ROOT, 'src', 'experiments', 'configs')
-const TESTS_ROOT = join(PROJECT_ROOT, 'src', 'experiments', 'tests')
-const DEFAULT_DATASET = 'src/experiments/datasets/basic.json'
-const BACKEND_URL =
-  process.env.EXPERIMENTS_BACKEND_URL ?? 'http://localhost:8000/v1/experiments'
+const BACKEND_URL = process.env.EXPERIMENTS_BACKEND_URL ?? 'http://localhost:8100'
 
-type LocalJob = {
-  jobId: string
-  status: 'queued' | 'running' | 'completed' | 'failed'
-  experimentRunId?: string | null
-  error?: string | null
-  result?: Record<string, unknown> | null
-  startedAt: number
-}
-
-const LOCAL_JOB_STORE = new Map<string, LocalJob>()
-
-function safeName(value: string) {
-  return (value.trim().replace(/[<>:"/\\|?*\s]+/g, '_').slice(0, 120) || 'unnamed')
-}
+type JsonObject = Record<string, unknown>
 
 function json(value: unknown, init?: ResponseInit) {
   return NextResponse.json(value, init)
 }
 
-function readJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, 'utf8')) as T
+function backendUrl(path: string, searchParams?: URLSearchParams) {
+  const base = BACKEND_URL.replace(/\/$/, '')
+  const url = new URL(`${base}${path.startsWith('/') ? path : `/${path}`}`)
+
+  searchParams?.forEach((value, key) => {
+    url.searchParams.set(key, value)
+  })
+
+  return url
 }
 
-function writeJson(path: string, value: unknown) {
-  mkdirSync(dirname(path), { recursive: true })
-  writeFileSync(path, JSON.stringify(value, null, 2), 'utf8')
-}
+async function backendJson<T>(
+  path: string,
+  init?: RequestInit,
+  searchParams?: URLSearchParams,
+): Promise<T> {
+  const response = await fetch(backendUrl(path, searchParams), {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers ?? {}),
+    },
+    cache: 'no-store',
+  })
 
-function trimLog(value: string) {
-  const trimmed = value.trim()
-  if (trimmed.length <= 1800) return trimmed
-  return `${trimmed.slice(0, 1800)}...`
-}
-
-function pythonCommand() {
-  const configured = process.env.PYTHON?.trim()
-
-  if (configured) {
-    try {
-      if (existsSync(configured) && statSync(configured).isDirectory()) {
-        const executable = join(configured, process.platform === 'win32' ? 'python.exe' : 'python')
-        if (existsSync(executable)) return executable
-        return 'python'
-      }
-    } catch {
-      return 'python'
-    }
-
-    return configured
+  if (!response.ok) {
+    const details = await response.text()
+    throw new Error(`BenchMerge ${response.status}: ${details || response.statusText}`)
   }
 
-  return 'python'
+  return (await response.json()) as T
 }
 
-function startLocalExperimentRun(body: Record<string, unknown>) {
-  const jobId = `local_${randomUUID().replace(/-/g, '')}`
-  const job: LocalJob = {
-    jobId,
-    status: 'queued',
-    experimentRunId: null,
-    error: null,
-    result: null,
-    startedAt: Date.now(),
+function asArray<T = JsonObject>(value: unknown): T[] {
+  if (Array.isArray(value)) return value as T[]
+  if (value && typeof value === 'object' && Array.isArray((value as JsonObject).items)) {
+    return (value as { items: T[] }).items
   }
-  LOCAL_JOB_STORE.set(jobId, job)
+  return []
+}
 
-  const script = `
-import json
-import sys
-from src.experiments.runner import run_experiment
+function pickString(value: unknown, fallback = '') {
+  return typeof value === 'string' ? value : fallback
+}
 
-body = json.loads(sys.argv[1])
-
-def optional_list(key):
-    value = body.get(key)
-    return value if isinstance(value, list) else None
-
-result = run_experiment(
-    experiment_run_id=body.get("experiment_run_id"),
-    dataset_path=body.get("dataset") or "src/experiments/datasets/basic.json",
-    configs_dir=body.get("configs_dir") or "src/experiments/configs",
-    base_url=body.get("base_url") or "http://localhost:8000",
-    default_model=body.get("default_model"),
-    db_path=body.get("db_path") or "src/experiments/results/results.sqlite3",
-    output_dir=body.get("output_dir") or "src/experiments/results",
-    timeout_seconds=int(body.get("timeout_seconds") or 120),
-    selected_config_names=optional_list("selected_config_names"),
-    selected_test_ids=optional_list("selected_test_ids"),
-    selected_models=optional_list("selected_models"),
-)
-print("__EXPERIMENT_RESULT__" + json.dumps(result, ensure_ascii=False))
-`
-
-  const child = spawn(pythonCommand(), ['-c', script, JSON.stringify(body)], {
-    cwd: PROJECT_ROOT,
-    env: process.env,
-    windowsHide: true,
-  })
-
-  let stdout = ''
-  let stderr = ''
-  job.status = 'running'
-
-  child.stdout.on('data', (chunk) => {
-    stdout += String(chunk)
-  })
-
-  child.stderr.on('data', (chunk) => {
-    stderr += String(chunk)
-  })
-
-  child.on('error', (error) => {
-    job.status = 'failed'
-    job.error = `${error.name}: ${error.message}`
-  })
-
-  child.on('close', (code) => {
-    if (job.status === 'failed') return
-
-    const marker = '__EXPERIMENT_RESULT__'
-    const markerIndex = stdout.lastIndexOf(marker)
-
-    if (code !== 0 || markerIndex < 0) {
-      job.status = 'failed'
-      job.error = trimLog(stderr || stdout || `runner exited with code ${code}`)
-      return
-    }
-
-    try {
-      const resultLine = stdout
-        .slice(markerIndex + marker.length)
-        .trim()
-        .split(/\\r?\\n/)[0]
-      const result = JSON.parse(resultLine) as Record<string, unknown>
-      job.status = 'completed'
-      job.result = result
-      job.experimentRunId =
-        typeof result.experiment_run_id === 'string' ? result.experiment_run_id : null
-    } catch (error) {
-      job.status = 'failed'
-      job.error = error instanceof Error ? error.message : String(error)
-    }
-  })
-
+function normalizeTest(test: JsonObject) {
   return {
-    job_id: jobId,
-    status: 'queued',
+    id: pickString(test.id ?? test.test_id),
+    input: pickString(test.input ?? test.user_prompt ?? test.name),
+    checks: test.checks && typeof test.checks === 'object' ? test.checks : {},
+    tags: Array.isArray(test.tags) ? test.tags : [],
+    runtime_params:
+      test.runtime_params && typeof test.runtime_params === 'object'
+        ? test.runtime_params
+        : {},
   }
 }
 
-function isInside(root: string, target: string) {
-  const rel = relative(root, target)
-  return rel === '' || (!rel.startsWith('..') && !rel.includes(':'))
-}
+function getUserPromptFromRequestPayload(payload: unknown) {
+  if (!payload || typeof payload !== 'object') return ''
 
-function datasetPath(dataset: string) {
-  const path = dataset.startsWith('src/')
-    ? join(PROJECT_ROOT, dataset)
-    : join(DATASETS_ROOT, dataset)
+  const messages = (payload as JsonObject).messages
+  if (!Array.isArray(messages)) return ''
 
-  if (!isInside(PROJECT_ROOT, path)) {
-    throw new Error('Unsafe dataset path')
-  }
-
-  return path
-}
-
-function listJsonFiles(root: string) {
-  if (!existsSync(root)) return []
-  return readdirSync(root)
-    .filter((fileName) => fileName.endsWith('.json'))
-    .sort()
-}
-
-function listRuns() {
-  if (!existsSync(RESULTS_ROOT)) return []
-
-  return readdirSync(RESULTS_ROOT, { withFileTypes: true })
-    .filter((item) => item.isDirectory())
-    .sort((a, b) => b.name.localeCompare(a.name))
-    .map((item) => {
-      const runDir = join(RESULTS_ROOT, item.name)
-      const files: string[] = []
-
-      for (const child of readdirSync(runDir, { withFileTypes: true })) {
-        if (child.isFile() && child.name.endsWith('.json')) {
-          files.push(child.name)
-        }
-
-        if (child.isDirectory()) {
-          for (const resultFile of listJsonFiles(join(runDir, child.name))) {
-            files.push(`${child.name}/${resultFile}`)
-          }
-        }
-      }
-
-      return { run_id: item.name, files: files.sort() }
+  const userMessage = [...messages]
+    .reverse()
+    .find((message) => {
+      return (
+        message &&
+        typeof message === 'object' &&
+        (message as JsonObject).role === 'user'
+      )
     })
+
+  if (!userMessage || typeof userMessage !== 'object') return ''
+  return pickString((userMessage as JsonObject).content)
 }
 
-function listTests() {
-  const testsById = new Map<string, Record<string, unknown>>()
-
-  for (const datasetFile of listJsonFiles(DATASETS_ROOT)) {
-    const cases = readJson<Record<string, unknown>[]>(join(DATASETS_ROOT, datasetFile))
-    for (const test of cases) {
-      const id = String(test.id ?? '')
-      if (id) testsById.set(id, test)
-    }
+function normalizeResult(result: JsonObject, fallbackRunId: string) {
+  return {
+    experiment_run_id: pickString(result.experiment_run_id ?? result.run_id, fallbackRunId),
+    test_id: pickString(result.test_id),
+    config_name: pickString(result.config_name ?? result.config_id),
+    model_name: pickString(result.model_name ?? result.model) || null,
+    input_text:
+      pickString(result.input_text) ||
+      getUserPromptFromRequestPayload(result.request_payload) ||
+      pickString(result.test_name),
+    response_text: pickString(result.response_text),
+    score: Number(result.score ?? 0),
+    passed: Boolean(result.passed),
+    latency_ms: Number(result.latency_ms ?? 0),
+    timestamp_utc: pickString(result.timestamp_utc ?? result.created_at),
+    thread_id: pickString(result.thread_id) || null,
+    trace_id: pickString(result.trace_id) || null,
+    runtime_params:
+      result.runtime_params && typeof result.runtime_params === 'object'
+        ? result.runtime_params
+        : {},
+    raw_response: result.raw_response ?? result.response_payload ?? null,
+    scoring: result.scoring ?? null,
   }
-
-  if (existsSync(TESTS_ROOT)) {
-    for (const fileName of listJsonFiles(TESTS_ROOT)) {
-      const test = readJson<Record<string, unknown>>(join(TESTS_ROOT, fileName))
-      const id = String(test.id ?? '')
-      if (id) testsById.set(id, test)
-    }
-  }
-
-  return [...testsById.values()].sort((a, b) => String(a.id).localeCompare(String(b.id)))
 }
 
-function saveTestToDataset(dataset: string, test: Record<string, unknown>) {
-  const path = datasetPath(dataset || DEFAULT_DATASET)
-  const cases = existsSync(path) ? readJson<Record<string, unknown>[]>(path) : []
-  const testId = test.id
-  const index = cases.findIndex((item) => item.id === testId)
-
-  if (index >= 0) {
-    cases[index] = test
-  } else {
-    cases.push(test)
-  }
-
-  writeJson(path, cases)
+async function loadConfigs() {
+  return asArray<JsonObject>(await backendJson<unknown>('/configs'))
 }
 
-async function proxyToWorkshop(request: NextRequest, path: string[]) {
-  const url = new URL(`${BACKEND_URL.replace(/\/$/, '')}/${path.map(encodeURIComponent).join('/')}`)
-  request.nextUrl.searchParams.forEach((value, key) => url.searchParams.set(key, value))
+async function loadTests() {
+  return asArray<JsonObject>(await backendJson<unknown>('/tests'))
+}
 
-  const response = await fetch(url, {
+async function loadRuns() {
+  return asArray<JsonObject>(await backendJson<unknown>('/runs'))
+}
+
+async function loadRunBundle(runId: string) {
+  return backendJson<JsonObject>(`/runs/${encodeURIComponent(runId)}`)
+}
+
+async function resolveConfigIds(selectedNames: unknown) {
+  const names = Array.isArray(selectedNames) ? selectedNames.map(String) : []
+  if (names.length === 0) return []
+
+  const configs = await loadConfigs()
+  return names
+    .map((name) => {
+      const config = configs.find((item) => {
+        return item.id === name || item.config_id === name || item.name === name
+      })
+      return pickString(config?.id ?? config?.config_id, name)
+    })
+    .filter(Boolean)
+}
+
+async function proxyToBenchMerge(request: NextRequest, path: string[]) {
+  const targetPath = `/${path.map(encodeURIComponent).join('/')}`
+  const response = await fetch(backendUrl(targetPath, request.nextUrl.searchParams), {
     method: request.method,
     headers: { 'Content-Type': 'application/json' },
     body: request.method === 'GET' ? undefined : await request.text(),
+    cache: 'no-store',
   })
 
   return new NextResponse(await response.text(), {
     status: response.status,
-    headers: { 'Content-Type': response.headers.get('Content-Type') ?? 'application/json' },
+    headers: {
+      'Content-Type': response.headers.get('Content-Type') ?? 'application/json',
+    },
   })
 }
 
@@ -285,73 +172,100 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   try {
     if (path[0] === 'catalog') {
+      const [configs, tests] = await Promise.all([loadConfigs(), loadTests()])
+      const configNames = configs
+        .map((config) => pickString(config.name ?? config.id ?? config.config_id))
+        .filter(Boolean)
+      const models = [
+        ...new Set(configs.map((config) => pickString(config.model)).filter(Boolean)),
+      ]
+
       return json({
-        datasets: listJsonFiles(DATASETS_ROOT).map((fileName) => `src/experiments/datasets/${fileName}`),
-        configs: listJsonFiles(CONFIGS_ROOT).map((fileName) => fileName.replace(/\.json$/, '')),
-        tests: listTests().map((test) => String(test.id)),
-        models: [],
+        datasets: ['benchfile://default'],
+        configs: configNames,
+        tests: tests.map((test) => pickString(test.id ?? test.test_id)).filter(Boolean),
+        models,
       })
     }
 
-    if (path[0] === 'tests') {
-      return json(listTests())
+    if (path[0] === 'tests' && path.length === 1) {
+      const tests = await loadTests()
+      return json(tests.map(normalizeTest))
     }
 
-    if (path[0] === 'configs') {
-      return json(listJsonFiles(CONFIGS_ROOT).map((fileName) => readJson(join(CONFIGS_ROOT, fileName))))
+    if (path[0] === 'configs' && path.length === 1) {
+      return json(await loadConfigs())
     }
 
     if (path[0] === 'runs' && path.length === 1) {
-      return json(listRuns())
+      const runs = await loadRuns()
+      return json(
+        runs.map((run) => ({
+          run_id: pickString(run.run_id),
+          files: [],
+        })),
+      )
     }
 
     if (path[0] === 'runs' && path[1] && path.length === 2) {
-      const runDir = join(RESULTS_ROOT, safeName(path[1]))
-      if (!existsSync(runDir) || !isInside(RESULTS_ROOT, runDir)) {
-        return json({ detail: 'Run not found' }, { status: 404 })
-      }
-
-      const manifestPath = join(runDir, 'run.json')
+      const runId = path[1]
+      const bundle = await loadRunBundle(runId)
+      const results = asArray<JsonObject>(bundle.results)
       const configs: Record<string, string[]> = {}
 
-      for (const item of readdirSync(runDir, { withFileTypes: true })) {
-        if (item.isDirectory()) {
-          configs[item.name] = listJsonFiles(join(runDir, item.name))
-        }
+      for (const result of results) {
+        const configName = pickString(result.config_name ?? result.config_id, 'unknown_config')
+        const resultId = pickString(result.id ?? result.result_id)
+        const fileName = resultId ? `${resultId}.json` : `${pickString(result.test_id)}.json`
+        configs[configName] = [...(configs[configName] ?? []), fileName]
       }
 
       return json({
-        run_id: path[1],
-        manifest: existsSync(manifestPath) ? readJson(manifestPath) : {},
+        run_id: runId,
+        manifest:
+          bundle.run && typeof bundle.run === 'object'
+            ? bundle.run
+            : {},
         configs,
       })
     }
 
     if (path[0] === 'runs' && path[1] && path[2] === 'files' && path[3] && path[4]) {
-      const filePath = join(RESULTS_ROOT, safeName(path[1]), safeName(path[3]), safeName(path[4]))
-      if (!isInside(RESULTS_ROOT, filePath) || !existsSync(filePath)) {
+      const runId = path[1]
+      const configName = decodeURIComponent(path[3])
+      const fileName = decodeURIComponent(path[4]).replace(/\.json$/, '')
+      const bundle = await loadRunBundle(runId)
+      const results = asArray<JsonObject>(bundle.results)
+      const result = results.find((item) => {
+        const itemConfigName = pickString(item.config_name ?? item.config_id)
+        const itemFile = pickString(item.id ?? item.result_id)
+        return itemConfigName === configName && itemFile === fileName
+      })
+
+      if (!result) {
         return json({ detail: 'Result file not found' }, { status: 404 })
       }
 
-      return json(readJson(filePath))
+      return json(normalizeResult(result, runId))
     }
 
     if (path[0] === 'jobs' && path[1]) {
-      const localJob = LOCAL_JOB_STORE.get(path[1])
-      if (localJob) {
-        return json({
-          job_id: localJob.jobId,
-          status: localJob.status,
-          experiment_run_id: localJob.experimentRunId ?? null,
-          error: localJob.error ?? null,
-          result: localJob.result ?? null,
-        })
-      }
-
-      return proxyToWorkshop(request, path)
+      const jobId = path[1]
+      const runId = jobId.startsWith('benchfile_') ? jobId.slice('benchfile_'.length) : jobId
+      return json({
+        job_id: jobId,
+        status: 'completed',
+        experiment_run_id: runId,
+        error: null,
+        result: { run_id: runId },
+      })
     }
 
-    return json({ detail: 'Not found' }, { status: 404 })
+    if (path[0] === 'files') {
+      return proxyToBenchMerge(request, path)
+    }
+
+    return proxyToBenchMerge(request, path)
   } catch (error) {
     return json(
       { detail: error instanceof Error ? error.message : String(error) },
@@ -365,33 +279,51 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   try {
     if (path[0] === 'tests') {
-      const test = (await request.json()) as Record<string, unknown>
-      const id = String(test.id ?? '')
-      if (!id) return json({ detail: 'id is required' }, { status: 400 })
-
-      const normalized = {
-        id,
-        input: String(test.input ?? ''),
-        runtime_params:
-          test.runtime_params && typeof test.runtime_params === 'object' && !Array.isArray(test.runtime_params)
-            ? test.runtime_params
-            : {},
-        checks: test.checks ?? {},
-        tags: Array.isArray(test.tags) ? test.tags : [],
+      const body = (await request.json()) as JsonObject
+      const payload = {
+        test_id: pickString(body.id ?? body.test_id),
+        name: pickString(body.name ?? body.id ?? body.test_id, 'Untitled test'),
+        user_prompt: pickString(body.input ?? body.user_prompt),
+        checks: body.checks && typeof body.checks === 'object' ? body.checks : {},
+        tags: Array.isArray(body.tags) ? body.tags : [],
       }
 
-      const testPath = join(TESTS_ROOT, `${safeName(id)}.json`)
-      writeJson(testPath, normalized)
-      saveTestToDataset(request.nextUrl.searchParams.get('dataset') ?? DEFAULT_DATASET, normalized)
-      return json(normalized)
+      const created = await backendJson<JsonObject>('/tests', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+
+      return json(normalizeTest(created))
     }
 
     if (path[0] === 'run') {
-      const body = (await request.json()) as Record<string, unknown>
-      return json(startLocalExperimentRun(body))
+      const body = (await request.json()) as JsonObject
+      const configIds = await resolveConfigIds(
+        body.selected_config_names ?? body.config_ids ?? body.selected_config_ids,
+      )
+
+      const payload = {
+        selected_test_ids: Array.isArray(body.selected_test_ids)
+          ? body.selected_test_ids.map(String)
+          : [],
+        config_ids: configIds,
+      }
+
+      const run = await backendJson<JsonObject>('/runs', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+
+      const runId = pickString(run.run_id)
+      return json({
+        job_id: `benchfile_${runId}`,
+        status: 'queued',
+        experiment_run_id: runId,
+        result: run,
+      })
     }
 
-    return json({ detail: 'Not found' }, { status: 404 })
+    return proxyToBenchMerge(request, path)
   } catch (error) {
     return json(
       { detail: error instanceof Error ? error.message : String(error) },
@@ -401,26 +333,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
-  return proxyToWorkshop(request, (await context.params).path ?? [])
+  return proxyToBenchMerge(request, (await context.params).path ?? [])
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  const { path = [] } = await context.params
-
-  try {
-    if (path[0] === 'tests' && path[1]) {
-      const testPath = join(TESTS_ROOT, `${safeName(path[1])}.json`)
-      if (existsSync(testPath) && isInside(TESTS_ROOT, testPath)) {
-        unlinkSync(testPath)
-      }
-      return json({ deleted: true, test_id: path[1] })
-    }
-
-    return proxyToWorkshop(request, path)
-  } catch (error) {
-    return json(
-      { detail: error instanceof Error ? error.message : String(error) },
-      { status: 500 },
-    )
-  }
+  return proxyToBenchMerge(request, (await context.params).path ?? [])
 }
